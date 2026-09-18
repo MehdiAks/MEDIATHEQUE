@@ -70,7 +70,7 @@ if (!empty($album['nomGp'])) {
 }
 
 $trackStatement = $bdd->prepare(
-    'SELECT idTit, nomTit, dureeTit FROM TITRE WHERE idAlb = :idAlb ORDER BY idTit ASC, nomTit ASC'
+    'SELECT idTit, nomTit, dureeTit, audioTit FROM TITRE WHERE idAlb = :idAlb ORDER BY idTit ASC, nomTit ASC'
 );
 $trackStatement->execute(['idAlb' => $albumId]);
 $tracks = $trackStatement->fetchAll();
@@ -132,7 +132,12 @@ require __DIR__ . '/header.php';
       <table class="track-table"><caption class="visually-hidden">Pistes de <?= h($album['nomA']) ?> et durées en minutes et secondes</caption>
         <thead><tr><th scope="col">N°</th><th scope="col">Titre</th><th scope="col">Durée</th></tr></thead>
         <tbody><?php foreach ($tracks as $i=>$track): ?><tr>
-          <td><?= $i+1 ?></td><th scope="row"><?= h($track['nomTit']) ?></th>
+          <td><?= $i+1 ?></td><th scope="row"><?= h($track['nomTit']) ?>
+          <?php if (audio_url($track['audioTit'])): ?>
+          <audio class="track-audio" controls preload="none" aria-label="Écouter <?= h($track['nomTit']) ?>" src="<?= h(audio_url($track['audioTit'])) ?>">Votre navigateur ne prend pas en charge le lecteur audio.</audio>
+          <a class="audio-download" href="<?= h(audio_url($track['audioTit'])) ?>" download>Télécharger <?= h($track['nomTit']) ?></a>
+          <?php else: ?><span class="track-unavailable">Audio non disponible</span><?php endif; ?>
+          </th>
           <td><span aria-hidden="true"><?= h($formatDuration($track['dureeTit'])) ?></span><span class="visually-hidden"><?= (int)$track['dureeTit'] / 60 >= 1 ? intdiv((int)round($track['dureeTit']),60).' minutes ' : '' ?><?= (int)round($track['dureeTit']) % 60 ?> secondes</span></td>
         </tr><?php endforeach; ?></tbody>
       </table>

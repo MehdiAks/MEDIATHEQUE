@@ -10,4 +10,5 @@ if (!query_rows("SHOW COLUMNS FROM ALBUM LIKE 'imageA'")) db()->exec('ALTER TABL
 db()->exec('ALTER TABLE ARTISTE MODIFY idGp INT(10) NULL');
 db()->exec('ALTER TABLE ALBUM MODIFY idArt INT(10) NULL, MODIFY idGp INT(10) NULL');
 db()->exec(file_get_contents(ROOT.'/BDD/004_antispam.sql'));
+if (!query_rows("SHOW COLUMNS FROM TITRE LIKE 'audioTit'")) db()->exec(file_get_contents(ROOT.'/BDD/005_track_audio.sql'));
 echo "Base de données à jour.\n";

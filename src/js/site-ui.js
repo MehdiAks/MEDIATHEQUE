@@ -9,6 +9,18 @@
   }
   document.addEventListener('error', event => { if (event.target instanceof HTMLImageElement) replaceImage(event.target); }, true);
   document.querySelectorAll('img').forEach(img => { if (img.complete && !img.naturalWidth) replaceImage(img); });
+  const audioInput = document.getElementById('audioTit');
+  audioInput?.addEventListener('change', () => {
+    const hasFile = audioInput.files.length > 0;
+    for (const id of ['audioTitle','audioDuration']) {
+      const input = document.getElementById(id);
+      if (input) input.required = hasFile;
+    }
+    audioInput.setCustomValidity(hasFile && audioInput.files[0].size > 20*1024*1024 ? '20 Mo maximum par fichier audio.' : '');
+  });
+  document.addEventListener('play', event => {
+    if (event.target instanceof HTMLAudioElement) document.querySelectorAll('audio').forEach(player => { if (player !== event.target) player.pause(); });
+  }, true);
   const form = document.querySelector('[data-auth]');
   if (!form) return;
   const email = form.elements.eMailUser;

@@ -61,3 +61,11 @@ Définir `BASE_URL` avec le domaine public HTTPS puis lancer `php scripts/genera
 Exécuter `php scripts/migrate.php` après le pull pour créer la table de limitation antispam. Les inscriptions utilisent un champ piège et une limite de 5 tentatives par adresse IP sur une fenêtre de 15 minutes ; les connexions sont limitées à 20 tentatives. Les compteurs expirés sont purgés lors des nouvelles tentatives. Les en-têtes de proxy fournis par le client ne sont pas utilisés. Les formulaires conservent la validation serveur et les jetons CSRF ; les contrôles JavaScript complètent la validation native du navigateur.
 
 Vérifications réalisées : tests HTTP/PHP des CRUD, du partage, du sitemap, de la 404, du piège antispam et du code 429 ; contrôle des liens publics internes. Les styles contiennent des adaptations mobile/tablette, mais une vérification visuelle sur appareils réels reste à effectuer.
+
+## Écouter les albums
+
+Après le pull, lancer `php scripts/migrate.php` (migration 005 : chemin audio sur TITRE). Le dossier `uploads/audio` doit être accessible en écriture à PHP. Configurer `upload_max_filesize=20M` et `post_max_size=32M` dans PHP pour pouvoir envoyer un audio de 20 Mo avec une pochette. Les limites PHP inférieures restent prioritaires.
+
+Dans **Albums → Créer / Modifier**, choisir un fichier MP3, WAV ou OGG et renseigner le nom de la piste et sa durée en secondes. Une piste est créée en même temps que l’album ; si la validation échoue, l’opération est annulée et le fichier nettoyé. L’envoi est facultatif. Ajouter plusieurs morceaux se fait depuis **Titres → Créer** ; **Titres → Modifier** permet de remplacer ou supprimer leur audio.
+
+Les lecteurs natifs de la fiche album sont accessibles au clavier, ne démarrent pas automatiquement et ne préchargent pas les fichiers. Une nouvelle lecture met les autres lecteurs en pause. Les fichiers ajoutés sont publics, comme le catalogue. L’API utilise `audioTit` en multipart ; sur les albums, envoyer aussi `audioTitle` et `audioDuration`. Sur les titres, `remove_audio=1` retire le fichier existant. Les durées sont saisies par l’administrateur.

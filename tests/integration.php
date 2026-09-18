@@ -5,7 +5,7 @@ $database='mediatheque_test_'.bin2hex(random_bytes(5));
 $connection=db(); $server=null;
 function expect($condition,$message): void { if (!$condition) throw new RuntimeException($message); }
 $cookie='';
-function request(string $path,array $data=[],string $method='GET',bool $json=false, ?string $image=null): array {
+function request(string $path,array $data=[],string $method='GET',bool $json=false, ?string $image=null, string $fileField="imageA"): array {
     global $cookie;
     $headers=['Cookie: '.$cookie];
     if ($json) $headers[]='Accept: application/json';
@@ -13,7 +13,7 @@ function request(string $path,array $data=[],string $method='GET',bool $json=fal
     if ($image !== null) {
         $boundary='test'.bin2hex(random_bytes(12)); $content='';
         foreach ($data as $key=>$value) $content.='--'.$boundary."\r\nContent-Disposition: form-data; name=\"".$key."\"\r\n\r\n".$value."\r\n";
-        $content.='--'.$boundary."\r\nContent-Disposition: form-data; name=\"imageA\"; filename=\"cover.png\"\r\nContent-Type: image/png\r\n\r\n".$image."\r\n--".$boundary."--\r\n";
+        $content.='--'.$boundary."\r\nContent-Disposition: form-data; name=\"".$fileField."\"; filename=\"cover.png\"\r\nContent-Type: image/png\r\n\r\n".$image."\r\n--".$boundary."--\r\n";
         $headers[]='Content-Type: multipart/form-data; boundary='.$boundary;
     } elseif ($method==='POST') $headers[]='Content-Type: application/x-www-form-urlencoded';
     $context=stream_context_create(['http'=>['method'=>$method,'header'=>implode("\r\n",$headers),'content'=>$content,'ignore_errors'=>true,'follow_location'=>0,'timeout'=>10]]);
@@ -33,6 +33,7 @@ try {
     $connection->exec(file_get_contents(ROOT.'/BDD/002_authentication.sql'));
     $connection->exec(file_get_contents(ROOT.'/BDD/003_album_cover.sql'));
     $connection->exec(file_get_contents(ROOT.'/BDD/004_antispam.sql'));
+    $connection->exec(file_get_contents(ROOT.'/BDD/005_track_audio.sql'));
     $connection->prepare('INSERT INTO `USER` (eMailUser,nomEUser,prenomUser,passwordHash,isAdmin) VALUES (?,?,?,?,1)')->execute(['admin@example.test','Admin','Test',password_hash('PasswordTest123!',PASSWORD_DEFAULT)]);
     $env=getenv(); $env['DB_DATABASE']=$database; $env['BASE_URL']='http://127.0.0.1:18976';
     $log=tempnam(sys_get_temp_dir(),'mediatheque-http-');
@@ -80,6 +81,28 @@ try {
     expect(request('/api/albums/update.php',$update+['remove_image'=>'1'],'POST',true)[0]===200,'Retrait pochette');
     clearstatcache();
     expect(!is_file(ROOT.'/'.$cover),'Fichier retiré');
+    $pcm=str_repeat("\x00\x00",8000);
+    $wav='RIFF'.pack('V',36+strlen($pcm)).'WAVEfmt '.pack('VvvVVvv',16,1,1,8000,16000,2,16).'data'.pack('V',strlen($pcm)).$pcm;
+    $audioData=$fixtures['albums']+['csrf_token'=>$csrf,'audioTitle'=>'Test audio','audioDuration'=>1];
+    [$status,$body]=request('/api/albums/create.php',$audioData,'POST',true,$wav,'audioTit');
+    expect($status===201,'Album avec audio : '.$body);
+    $audioAlbum=json_decode($body,true)['data']['idAlb'];
+    $audioRow=$connection->query('SELECT * FROM TITRE WHERE idAlb='.(int)$audioAlbum)->fetch();
+    expect($audioRow && is_file(ROOT.'/'.$audioRow['audioTit']),'Piste et fichier créés');
+    expect(request('/'.$audioRow['audioTit'])[0]===200,'Audio servi publiquement');
+    expect(str_contains(request('/album.php?id='.$audioAlbum)[1],'<audio'),'Lecteur présent');
+    $trackUpdate=['csrf_token'=>$csrf,'original_idTit'=>$audioRow['idTit'],'nomTit'=>'Test audio','dureeTit'=>1,'idAlb'=>$audioAlbum];
+    expect(request('/api/titres/update.php',$trackUpdate,'POST',true,'<?php echo 1;','audioTit')[0]===422,'Faux audio refusé');
+    expect(request('/api/titres/update.php',$trackUpdate+['remove_audio'=>'1'],'POST',true)[0]===200,'Retrait audio');
+    clearstatcache(); expect(!is_file(ROOT.'/'.$audioRow['audioTit']),'Fichier retiré');
+    [$status,$body]=request('/api/titres/update.php',$trackUpdate,'POST',true,$wav,'audioTit');
+    expect($status===200,'Remplacement audio');
+    $audioPath=json_decode($body,true)['data']['audioTit'];
+    expect(request('/api/albums/delete.php',['csrf_token'=>$csrf,'idAlb'=>$audioAlbum],'POST',true)[0]===200,'Suppression album audio');
+    clearstatcache(); expect(!is_file(ROOT.'/'.$audioPath),'Audio supprimé par cascade');
+    $before=(int)$connection->query('SELECT COUNT(*) FROM ALBUM')->fetchColumn();
+    expect(request('/api/albums/create.php',$fixtures['albums']+['csrf_token'=>$csrf],'POST',true,$wav,'audioTit')[0]===422,'Métadonnées audio obligatoires');
+    expect((int)$connection->query('SELECT COUNT(*) FROM ALBUM')->fetchColumn()===$before,'Album annulé si piste invalide');
     expect(request('/api/likes/create.php',$fixtures['likes']+['csrf_token'=>$csrf],'POST',true)[0]===409,'Doublon favori');
     expect(request('/api/titres/create.php',['nomTit'=>'Invalide','dureeTit'=>-1,'idAlb'=>1,'csrf_token'=>$csrf],'POST',true)[0]===422,'Durée invalide');
     expect(request('/api/groupes/create.php',['nomGp'=>'Date','dtCreaGp'=>'2024-02-31','csrf_token'=>$csrf],'POST',true)[0]===422,'Date invalide');
@@ -122,6 +145,7 @@ try {
     expect($last[0]===429,'Limitation des inscriptions répétées');
     echo "OK : CRUD des 6 ressources, formulaires, authentification, permissions, CSRF, méthodes HTTP, validation, recherche et favoris.\n";
 } finally {
+    foreach ($connection->query('SELECT audioTit FROM TITRE WHERE audioTit IS NOT NULL') as $row) remove_audio($row['audioTit']);
     foreach ($connection->query('SELECT imageA FROM ALBUM WHERE imageA IS NOT NULL') as $row) remove_album_image($row['imageA']);
     if (is_resource($server)) { proc_terminate($server); proc_close($server); }
     $connection->exec('DROP DATABASE IF EXISTS `'.$database.'`');

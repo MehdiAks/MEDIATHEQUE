@@ -59,6 +59,23 @@ require ROOT.'/header.php';
 <p id="image-help" class="form-text">JPEG, PNG ou WebP. 5 Mo maximum, 6 000 pixels par côté et 16 millions de pixels maximum. Sans nouveau fichier, la pochette est conservée. Après une erreur, sélectionnez à nouveau le fichier.</p>
 </fieldset>
 <?php endif; ?>
+<?php if (in_array($entity,['albums','titres'])): ?>
+<fieldset class="mb-4"><legend><?= $entity==='albums'?'Ajouter une piste à cet album':'Fichier audio' ?></legend>
+<?php if ($entity==='titres' && audio_url($record['audioTit'] ?? null)): ?>
+<audio controls preload="none" src="<?= h(audio_url($record['audioTit'])) ?>" aria-label="Écouter la piste actuelle"></audio>
+<p><label><input type="checkbox" name="remove_audio" value="1"> Supprimer le fichier audio actuel</label></p>
+<?php endif; ?>
+<label class="form-label" for="audioTit">Musique (facultatif)</label>
+<input class="form-control" type="file" name="audioTit" id="audioTit" accept="audio/mpeg,audio/wav,audio/x-wav,audio/ogg,.mp3,.wav,.ogg" aria-describedby="audio-help">
+<p id="audio-help" class="form-text">MP3, WAV ou OGG, 20 Mo maximum par fichier. Sans nouveau fichier, l’audio existant est conservé.</p>
+<?php if ($entity==='albums'): ?>
+<label class="form-label" for="audioTitle">Nom de la piste (obligatoire si un fichier est envoyé)</label>
+<input class="form-control mb-3" id="audioTitle" name="audioTitle" maxlength="70" value="<?= h(is_string($old['audioTitle'] ?? null)?$old['audioTitle']:'') ?>">
+<label class="form-label" for="audioDuration">Durée en secondes (obligatoire si un fichier est envoyé)</label>
+<input class="form-control" type="number" id="audioDuration" name="audioDuration" min="0.01" step="any" value="<?= h(is_scalar($old['audioDuration'] ?? null)?$old['audioDuration']:'') ?>">
+<p class="form-text">Cette piste sera créée avec l’album. Pour ajouter d’autres morceaux ou remplacer leur audio, utilisez la rubrique Titres.</p>
+<?php endif; ?></fieldset>
+<?php endif; ?>
 <?php if ($entity === 'users'): ?>
 <div class="mb-3"><label class="form-label" for="password">Mot de passe (facultatif, 12 caractères minimum)</label>
 <input class="form-control" type="password" id="password" name="password" autocomplete="new-password">

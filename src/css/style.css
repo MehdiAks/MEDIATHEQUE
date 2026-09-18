@@ -923,3 +923,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   .site-footer { padding: 24px 16px; }
   .site-footer nav { flex-direction: column; }
 }
+
+.track-audio { display: block; width: 100%; max-width: 420px; min-width: 0; margin: 12px 0 6px; }
+.audio-download, .track-unavailable { display: block; font-size: .8rem; font-weight: 400; margin-top: 8px; }

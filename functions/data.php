@@ -1,12 +1,13 @@
 <?php
 require_once __DIR__.'/album-images.php';
+require_once __DIR__.'/audio.php';
 /** Registry shared by the API and administration forms. */
 function resources(): array {
     return [
         'groupes' => ['table'=>'GROUPE','label'=>'Groupes','keys'=>['idGp'],'fields'=>['nomGp'=>['Nom','text',50], 'dtCreaGp'=>['Date de création','date']]],
         'artistes' => ['table'=>'ARTISTE','label'=>'Artistes','keys'=>['idArt'],'fields'=>['nomArt'=>['Nom','text',50],'prenomArt'=>['Prénom','text',50],'idGp'=>['Groupe','relation','groupes',true]]],
         'albums' => ['readOnly'=>['imageA'], 'table'=>'ALBUM','label'=>'Albums','keys'=>['idAlb'],'fields'=>['nomA'=>['Nom','text',70],'dtSortieA'=>['Date de sortie','date'],'nomLabelA'=>['Label','text',90],'idArt'=>['Artiste','relation','artistes',true],'idGp'=>['Groupe','relation','groupes',true]]],
-        'titres' => ['table'=>'TITRE','label'=>'Titres','keys'=>['idTit'],'fields'=>['nomTit'=>['Nom','text',70],'dureeTit'=>['Durée (secondes)','number'],'idAlb'=>['Album','relation','albums']]],
+        'titres' => ['readOnly'=>['audioTit'],'table'=>'TITRE','label'=>'Titres','keys'=>['idTit'],'fields'=>['nomTit'=>['Nom','text',70],'dureeTit'=>['Durée (secondes)','number'],'idAlb'=>['Album','relation','albums']]],
         'users' => ['table'=>'USER','label'=>'Utilisateurs','keys'=>['eMailUser'],'fields'=>['eMailUser'=>['Adresse e-mail','email',50],'nomEUser'=>['Nom','text',50],'prenomUser'=>['Prénom','text',50]]],
         'likes' => ['table'=>'LIKES','label'=>'Favoris','keys'=>['eMailUser','idAlb'],'fields'=>['eMailUser'=>['Utilisateur','relation','users'],'idAlb'=>['Album','relation','albums']]],
     ];

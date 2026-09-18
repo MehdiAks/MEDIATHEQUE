@@ -3,6 +3,8 @@ require_once dirname(__DIR__).'/config.php';
 $json = str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') || str_contains($_SERVER['CONTENT_TYPE'] ?? '', 'application/json');
 $input = $_POST;
 $newImage = null;
+$newAudio = null;
+$audioToRemove = [];
 $imagesToRemove = [];
 try {
     if (str_contains($_SERVER['CONTENT_TYPE'] ?? '', 'application/json')) {
@@ -13,7 +15,7 @@ try {
     $postLimit = trim(ini_get('post_max_size'));
     $postBytes = (float)$postLimit * (['g'=>1073741824,'m'=>1048576,'k'=>1024][strtolower(substr($postLimit,-1))] ?? 1);
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && $postBytes > 0 && (int)($_SERVER['CONTENT_LENGTH'] ?? 0) > $postBytes) {
-        throw new RuntimeException('Envoi trop volumineux pour le serveur. Choisissez une image plus petite.', 413);
+        throw new RuntimeException('Envoi trop volumineux pour le serveur. Réduisez la taille des fichiers envoyés.', 413);
     }
     $method = $_SERVER['REQUEST_METHOD'];
     if ($method !== ($action === 'read' ? 'GET' : 'POST')) { header('Allow: '.($action === 'read' ? 'GET' : 'POST')); throw new RuntimeException('Méthode non autorisée.', 405); }
@@ -48,10 +50,27 @@ try {
             $id = $existing[$resource['keys'][0]];
             $imagesToRemove = array_column(query_rows($imageSql, $entity === 'groupes' ? [$id,$id] : [$id]), 'imageA');
         }
+        if ($action === 'delete' && in_array($entity,['titres','albums','artistes','groupes'])) {
+            $audioSql = match ($entity) {
+                'titres'=>'SELECT audioTit FROM TITRE WHERE idTit = ?',
+                'albums'=>'SELECT audioTit FROM TITRE WHERE idAlb = ?',
+                'artistes'=>'SELECT t.audioTit FROM TITRE t JOIN ALBUM a ON a.idAlb=t.idAlb WHERE a.idArt = ?',
+                'groupes'=>'SELECT t.audioTit FROM TITRE t JOIN ALBUM a ON a.idAlb=t.idAlb WHERE a.idGp = ? OR a.idArt IN (SELECT idArt FROM ARTISTE WHERE idGp = ?)',
+            };
+            $id=$existing[$resource['keys'][0]];
+            $audioToRemove=array_column(query_rows($audioSql,$entity==='groupes'?[$id,$id]:[$id]),'audioTit');
+        }
         if ($action === 'delete') {
             $stmt = db()->prepare('DELETE FROM `'.$resource['table'].'` WHERE '.$where); $stmt->execute($params);
         } else {
             $data = validate_resource($resource,$input);
+            if (in_array($entity,['albums','titres'])) {
+                $newAudio=upload_audio();
+                if ($entity==='titres') {
+                    $data['audioTit']=$newAudio ?? (($input['remove_audio'] ?? '')==='1' ? null : ($existing['audioTit'] ?? null));
+                    if (($existing['audioTit'] ?? null)!==$data['audioTit']) $audioToRemove[]=$existing['audioTit'] ?? null;
+                }
+            }
             if ($entity === 'albums') {
                 $newImage = upload_album_image();
                 $data['imageA'] = $newImage ?? (($input['remove_image'] ?? '') === '1' ? null : ($existing['imageA'] ?? null));
@@ -74,7 +93,18 @@ try {
                 $result = $data;
             }
         }
+        if ($entity==='albums' && $newAudio && $action!=='delete') {
+            $trackData=validate_resource(resources()['titres'],[
+                'nomTit'=>$input['audioTitle'] ?? '',
+                'dureeTit'=>$input['audioDuration'] ?? '',
+                'idAlb'=>$action==='create'?$result['idAlb']:$existing['idAlb'],
+            ]);
+            $stmt=db()->prepare('INSERT INTO TITRE (nomTit,dureeTit,idAlb,audioTit) VALUES (?,?,?,?)');
+            $stmt->execute([$trackData['nomTit'],$trackData['dureeTit'],$trackData['idAlb'],$newAudio]);
+        }
         db()->commit();
+        $newAudio=null;
+        foreach ($audioToRemove as $audioPath) remove_audio($audioPath);
         foreach ($imagesToRemove as $imagePath) remove_album_image($imagePath);
         $newImage = null;
         if (isset($result['passwordHash'])) unset($result['passwordHash']);
@@ -84,6 +114,7 @@ try {
     }
     $_SESSION['messages'] = ['Opération effectuée.'];
 } catch (Throwable $e) {
+    if ($newAudio) remove_audio($newAudio);
     if ($newImage) remove_album_image($newImage);
     if (isset($DB) && $DB->inTransaction()) $DB->rollBack();
     $status = $e instanceof InvalidArgumentException || $e instanceof JsonException ? 422 : ($e instanceof PDOException ? 409 : ($e->getCode() >= 400 && $e->getCode() <= 599 ? $e->getCode() : 500));
