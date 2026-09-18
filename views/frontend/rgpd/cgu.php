@@ -1,4 +1,9 @@
-<?php
-require_once '../../../header.php';
-
-echo ("Ici CGU");
+<?php require_once dirname(__DIR__,3).'/header.php'; ?>
+<main class="legal-page"><p class="eyebrow dark">La médiathèque</p><h1>Conditions générales d’utilisation</h1>
+<h2>Éditeur et hébergement</h2><p>Ce site est édité par Mehdi Afankous, joignable à <a href="mailto:afankous.mehdi.pro@gmail.com">afankous.mehdi.pro@gmail.com</a>, et hébergé chez Hostinger. Les coordonnées légales complètes de l’éditeur et de l’entité d’hébergement contractuelle restent à compléter avant publication.</p>
+<h2>Objet du service</h2><p>La médiathèque permet de consulter des albums, leurs artistes et leurs pistes. La création d’un compte permet d’enregistrer des favoris. Seuls les administrateurs peuvent créer, modifier ou supprimer les éléments du catalogue.</p>
+<h2>Compte utilisateur</h2><p>Vous vous engagez à fournir des informations exactes, à conserver votre mot de passe confidentiel et à signaler toute utilisation non autorisée. L’acceptation de ces conditions est nécessaire à la création du compte ; elle ne constitue pas un consentement à la publicité.</p>
+<h2>Utilisation et contenus</h2><p>Il est interdit de tenter d’accéder aux comptes d’autrui, de perturber le service ou de publier un contenu illicite. Les administrateurs doivent disposer des droits nécessaires sur les pochettes et autres images qu’ils ajoutent. Les œuvres, marques et visuels restent la propriété de leurs ayants droit ; leur présence au catalogue n’autorise pas leur réutilisation.</p>
+<h2>Disponibilité et signalements</h2><p>Le service peut être interrompu pour maintenance. Pour signaler une erreur, un contenu portant atteinte à vos droits ou demander la suppression de votre compte, contactez l’éditeur à l’adresse indiquée ci-dessus.</p>
+<h2>Données personnelles</h2><p>Consultez la <a href="rgpd.php">politique de confidentialité</a> pour connaître les informations enregistrées et les modalités d’exercice de vos droits.</p>
+</main><?php require ROOT.'/footer.php'; ?>

@@ -1,10 +1,11 @@
 <?php
+require_once __DIR__.'/album-images.php';
 /** Registry shared by the API and administration forms. */
 function resources(): array {
     return [
         'groupes' => ['table'=>'GROUPE','label'=>'Groupes','keys'=>['idGp'],'fields'=>['nomGp'=>['Nom','text',50], 'dtCreaGp'=>['Date de création','date']]],
         'artistes' => ['table'=>'ARTISTE','label'=>'Artistes','keys'=>['idArt'],'fields'=>['nomArt'=>['Nom','text',50],'prenomArt'=>['Prénom','text',50],'idGp'=>['Groupe','relation','groupes',true]]],
-        'albums' => ['table'=>'ALBUM','label'=>'Albums','keys'=>['idAlb'],'fields'=>['nomA'=>['Nom','text',70],'dtSortieA'=>['Date de sortie','date'],'nomLabelA'=>['Label','text',90],'idArt'=>['Artiste','relation','artistes',true],'idGp'=>['Groupe','relation','groupes',true]]],
+        'albums' => ['readOnly'=>['imageA'], 'table'=>'ALBUM','label'=>'Albums','keys'=>['idAlb'],'fields'=>['nomA'=>['Nom','text',70],'dtSortieA'=>['Date de sortie','date'],'nomLabelA'=>['Label','text',90],'idArt'=>['Artiste','relation','artistes',true],'idGp'=>['Groupe','relation','groupes',true]]],
         'titres' => ['table'=>'TITRE','label'=>'Titres','keys'=>['idTit'],'fields'=>['nomTit'=>['Nom','text',70],'dureeTit'=>['Durée (secondes)','number'],'idAlb'=>['Album','relation','albums']]],
         'users' => ['table'=>'USER','label'=>'Utilisateurs','keys'=>['eMailUser'],'fields'=>['eMailUser'=>['Adresse e-mail','email',50],'nomEUser'=>['Nom','text',50],'prenomUser'=>['Prénom','text',50]]],
         'likes' => ['table'=>'LIKES','label'=>'Favoris','keys'=>['eMailUser','idAlb'],'fields'=>['eMailUser'=>['Utilisateur','relation','users'],'idAlb'=>['Album','relation','albums']]],
@@ -16,7 +17,7 @@ function query_rows(string $sql, array $params = []): array {
     $statement = db()->prepare($sql); $statement->execute($params); return $statement->fetchAll();
 }
 function resource_rows(array $resource): array {
-    $columns = array_unique(array_merge($resource['keys'], array_keys($resource['fields'])));
+    $columns = array_unique(array_merge($resource['keys'], array_keys($resource['fields']), $resource['readOnly'] ?? []));
     return query_rows('SELECT `'.implode('`,`', $columns).'` FROM `'.$resource['table'].'` ORDER BY `'.$resource['keys'][0].'`');
 }
 function resource_key(array $resource, array $input, string $prefix = ''): array {

@@ -9,6 +9,7 @@ $bdd = sql_connect();
 $requete = "
   SELECT 
     a.idAlb,
+    a.imageA,
     a.nomA,
     a.dtSortieA,
     a.nomLabelA,
@@ -32,6 +33,7 @@ $albums = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="section-orb section-orb-one" aria-hidden="true"></div>
     <div class="section-orb section-orb-two" aria-hidden="true"></div>
 
+    <section class="catalogue-intro" aria-labelledby="catalogue-title"><p class="eyebrow dark">Votre prochaine découverte musicale</p><h1 id="catalogue-title">La musique se découvre ici.</h1><p>Parcourez les albums, rencontrez les artistes et retrouvez vos coups de cœur.</p><a class="btn btn-primary" href="#projectGrid">Découvrir les albums</a></section>
     <div class="section-heading">
       <div>
         <p class="eyebrow dark">Médiathèque</p>
@@ -50,10 +52,12 @@ $albums = $stmt->fetchAll(PDO::FETCH_ASSOC);
       ?>
         <a class="album-card-link" href="<?= h(BASE_URL.'/album.php?id='.(int)$album['idAlb']) ?>">
           <article class="album-card">
-            <div class="album-cover album-cover--<?= (int)$album['idAlb'] % 4 ?>" aria-hidden="true">
+            <div class="album-cover album-cover--<?= (int)$album['idAlb'] % 4 ?>">
               <span class="album-cover-category"><?= !empty($album['nomGp']) ? 'Groupe' : 'Artiste' ?></span>
-              <span class="album-vinyl"></span>
-              <span class="album-cover-name"><?= h($album['nomA']) ?></span>
+              <?php if (album_image_url($album['imageA'])): ?>
+              <img class="album-cover-image" src="<?= h(album_image_url($album['imageA'])) ?>" alt="Pochette de <?= h($album['nomA']) ?>" loading="lazy" width="600" height="600">
+              <?php else: ?><img class="album-cover-image fallback-cover" src="<?= h(BASE_URL.'/src/images/Michel.png') ?>" alt="Michel, image de remplacement pour cet album" loading="lazy"><?php endif; ?>
+              <span class="album-cover-name" <?= album_image_url($album['imageA']) ? 'hidden' : '' ?>><?= h($album['nomA']) ?></span>
               <span class="album-cover-action">Découvrir l’album <span>↗</span></span>
             </div>
             <div class="album-card-body">

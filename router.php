@@ -5,4 +5,5 @@ if (preg_match('~(?:^|/)(?:\.[^/]*|BDD|tests|scripts|functions|config|includes)(
     http_response_code(403);
     exit('Accès interdit.');
 }
+if (!is_file(__DIR__.$path) && $path !== '/') { require __DIR__.'/404.php'; return true; }
 return false;

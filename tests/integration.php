@@ -5,14 +5,20 @@ $database='mediatheque_test_'.bin2hex(random_bytes(5));
 $connection=db(); $server=null;
 function expect($condition,$message): void { if (!$condition) throw new RuntimeException($message); }
 $cookie='';
-function request(string $path,array $data=[],string $method='GET',bool $json=false): array {
+function request(string $path,array $data=[],string $method='GET',bool $json=false, ?string $image=null): array {
     global $cookie;
     $headers=['Cookie: '.$cookie];
     if ($json) $headers[]='Accept: application/json';
-    if ($method==='POST') $headers[]='Content-Type: application/x-www-form-urlencoded';
-    $context=stream_context_create(['http'=>['method'=>$method,'header'=>implode("\r\n",$headers),'content'=>http_build_query($data),'ignore_errors'=>true,'follow_location'=>0,'timeout'=>10]]);
+    $content=http_build_query($data);
+    if ($image !== null) {
+        $boundary='test'.bin2hex(random_bytes(12)); $content='';
+        foreach ($data as $key=>$value) $content.='--'.$boundary."\r\nContent-Disposition: form-data; name=\"".$key."\"\r\n\r\n".$value."\r\n";
+        $content.='--'.$boundary."\r\nContent-Disposition: form-data; name=\"imageA\"; filename=\"cover.png\"\r\nContent-Type: image/png\r\n\r\n".$image."\r\n--".$boundary."--\r\n";
+        $headers[]='Content-Type: multipart/form-data; boundary='.$boundary;
+    } elseif ($method==='POST') $headers[]='Content-Type: application/x-www-form-urlencoded';
+    $context=stream_context_create(['http'=>['method'=>$method,'header'=>implode("\r\n",$headers),'content'=>$content,'ignore_errors'=>true,'follow_location'=>0,'timeout'=>10]]);
     $body=file_get_contents('http://127.0.0.1:18976'.$path,false,$context);
-    foreach ($http_response_header as $header) if (preg_match('/^Set-Cookie: ([^;]+)/i',$header,$match)) $cookie=$match[1];
+    foreach ($http_response_header as $header) if (preg_match('/^Set-Cookie: ([^;]+)/i',$header,$match)) { $parts=explode('=', $match[1],2); $cookies=[]; foreach(explode('; ', $cookie) as $pair) { if(str_contains($pair,'=')) {[$k,$v]=explode('=',$pair,2); $cookies[$k]=$v;} } $cookies[$parts[0]]=$parts[1]; $cookie=implode('; ',array_map(static fn($k,$v)=>$k.'='.$v,array_keys($cookies),$cookies)); }
     preg_match('/\s(\d{3})\s/',$http_response_header[0],$match);
     return [(int)$match[1],$body];
 }
@@ -25,6 +31,8 @@ try {
     $schema=str_replace('USE MEDIATHEQ22;','',$schema);
     $connection->exec($schema);
     $connection->exec(file_get_contents(ROOT.'/BDD/002_authentication.sql'));
+    $connection->exec(file_get_contents(ROOT.'/BDD/003_album_cover.sql'));
+    $connection->exec(file_get_contents(ROOT.'/BDD/004_antispam.sql'));
     $connection->prepare('INSERT INTO `USER` (eMailUser,nomEUser,prenomUser,passwordHash,isAdmin) VALUES (?,?,?,?,1)')->execute(['admin@example.test','Admin','Test',password_hash('PasswordTest123!',PASSWORD_DEFAULT)]);
     $env=getenv(); $env['DB_DATABASE']=$database; $env['BASE_URL']='http://127.0.0.1:18976';
     $log=tempnam(sys_get_temp_dir(),'mediatheque-http-');
@@ -54,6 +62,24 @@ try {
         $update=$data+['csrf_token'=>$csrf]; foreach($keys as $key=>$value) $update['original_'.$key]=$value;
         expect(request('/api/'.$entity.'/update.php',$update,'POST',true)[0]===200,'Modification '.$entity);
     }
+    $update=$fixtures['albums']+['original_idAlb'=>1,'csrf_token'=>$csrf];
+    $testImage=imagecreatetruecolor(10,10); ob_start(); imagepng($testImage); $imageBytes=ob_get_clean(); imagedestroy($testImage);
+    [$status,$body]=request('/api/albums/update.php',$update,'POST',true,$imageBytes);
+    expect($status===200,'Upload multipart : '.$body);
+    $cover=json_decode($body,true)['data']['imageA'];
+    expect(is_file(ROOT.'/'.$cover),'Pochette stockée');
+    expect(request('/'.$cover)[0]===200,'Pochette publique');
+    expect(str_contains(request('/album.php?id=1')[1],$cover),'Pochette sur fiche');
+    expect(str_contains(request('/index.php')[1],$cover),'Pochette catalogue');
+    expect(request('/api/albums/update.php',$update,'POST',true,'<?php echo "invalid"; ?>')[0]===422,'Fausse image refusée');
+    expect(is_file(ROOT.'/'.$cover),'Ancienne pochette conservée après erreur');
+    [$status,$body]=request('/api/albums/update.php',$update,'POST',true,$imageBytes);
+    clearstatcache();
+    expect($status===200 && !is_file(ROOT.'/'.$cover),'Remplacement nettoie ancienne pochette');
+    $cover=json_decode($body,true)['data']['imageA'];
+    expect(request('/api/albums/update.php',$update+['remove_image'=>'1'],'POST',true)[0]===200,'Retrait pochette');
+    clearstatcache();
+    expect(!is_file(ROOT.'/'.$cover),'Fichier retiré');
     expect(request('/api/likes/create.php',$fixtures['likes']+['csrf_token'=>$csrf],'POST',true)[0]===409,'Doublon favori');
     expect(request('/api/titres/create.php',['nomTit'=>'Invalide','dureeTit'=>-1,'idAlb'=>1,'csrf_token'=>$csrf],'POST',true)[0]===422,'Durée invalide');
     expect(request('/api/groupes/create.php',['nomGp'=>'Date','dtCreaGp'=>'2024-02-31','csrf_token'=>$csrf],'POST',true)[0]===422,'Date invalide');
@@ -70,11 +96,33 @@ try {
     request('/api/security/disconnect.php',['csrf_token'=>$csrf],'POST');
     $csrf=token('/views/backend/security/signup.php');
     expect(request('/api/security/signup.php',['csrf_token'=>$csrf,'eMailUser'=>'new@example.test','nomEUser'=>'Nom','prenomUser'=>'Prénom','password'=>'PasswordTest123!','password_confirm'=>'PasswordTest123!','consent'=>'1','isAdmin'=>1],'POST')[0]===303,'Inscription');
+    $home=request('/index.php')[1];
+    expect(!str_contains($home,'>Admin</a>'),'Lien admin absent pour membre');
+    expect(str_contains($home,'Michel.png'),'Michel présent');
+    $csrf=token('/views/backend/security/signup.php');
+    expect(request('/api/privacy/consent.php',['csrf_token'=>$csrf,'choice'=>'refused'],'POST')[0]===303,'Refus cookies');
+    expect(request('/api/privacy/consent.php',['choice'=>'accepted'],'POST')[0]===403,'Consentement protégé');
+    expect(!str_contains(request('/index.php')[1],'id="cookie-title"'),'Choix cookies mémorisé');
+    expect(str_contains(request('/index.php?cookies=1')[1],'id="cookie-title"'),'Choix cookies modifiable');
+    expect(!valid_password('abcdefghijklmnop'),'Mot de passe simple refusé');
+    expect(valid_password('PasswordTest123!'),'Mot de passe complexe accepté');
+
     expect(request('/api/users/read.php',[],'GET',true)[0]===403,'Utilisateur standard sans droits admin');
     expect(request('/views/backend/dashboard.php')[0]===403,'Dashboard protégé');
     expect(!preg_match('/PHP (?:Warning|Fatal|Deprecated|Parse error)/',file_get_contents($log)), 'Aucune erreur PHP dans les journaux');
+    [$status,$body]=request('/introuvable-test');
+    expect($status===404 && str_contains($body,'Cette page est introuvable'),'404 personnalisée');
+    expect(str_contains(request('/index.php')[1],'property="og:image"'),'Métadonnées de partage');
+    expect(str_contains(request('/sitemap.php')[1],'<urlset'),'Sitemap XML');
+    $csrf=token('/views/backend/security/signup.php');
+    $spam=['csrf_token'=>$csrf,'website'=>'https://spam.example','eMailUser'=>'spam@example.test','password'=>'PasswordTest123!'];
+    expect(request('/api/security/signup.php',$spam,'POST')[0]===303,'Piège antispam');
+    expect(!$connection->query("SELECT 1 FROM USER WHERE eMailUser='spam@example.test'")->fetchColumn(),'Spam non enregistré');
+    for($attempt=0;$attempt<6;$attempt++) $last=request('/api/security/signup.php',$spam,'POST');
+    expect($last[0]===429,'Limitation des inscriptions répétées');
     echo "OK : CRUD des 6 ressources, formulaires, authentification, permissions, CSRF, méthodes HTTP, validation, recherche et favoris.\n";
 } finally {
+    foreach ($connection->query('SELECT imageA FROM ALBUM WHERE imageA IS NOT NULL') as $row) remove_album_image($row['imageA']);
     if (is_resource($server)) { proc_terminate($server); proc_close($server); }
     $connection->exec('DROP DATABASE IF EXISTS `'.$database.'`');
     if (isset($log)) unlink($log);

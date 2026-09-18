@@ -2,12 +2,19 @@
 require_once dirname(__DIR__).'/config.php';
 $json = str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') || str_contains($_SERVER['CONTENT_TYPE'] ?? '', 'application/json');
 $input = $_POST;
+$newImage = null;
+$imagesToRemove = [];
 try {
     if (str_contains($_SERVER['CONTENT_TYPE'] ?? '', 'application/json')) {
         $input = json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR);
         if (!is_array($input)) throw new InvalidArgumentException('Objet JSON attendu.');
     }
     $resource = resources()[$entity];
+    $postLimit = trim(ini_get('post_max_size'));
+    $postBytes = (float)$postLimit * (['g'=>1073741824,'m'=>1048576,'k'=>1024][strtolower(substr($postLimit,-1))] ?? 1);
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && $postBytes > 0 && (int)($_SERVER['CONTENT_LENGTH'] ?? 0) > $postBytes) {
+        throw new RuntimeException('Envoi trop volumineux pour le serveur. Choisissez une image plus petite.', 413);
+    }
     $method = $_SERVER['REQUEST_METHOD'];
     if ($method !== ($action === 'read' ? 'GET' : 'POST')) { header('Allow: '.($action === 'read' ? 'GET' : 'POST')); throw new RuntimeException('Méthode non autorisée.', 405); }
     $user = current_user();
@@ -20,7 +27,7 @@ try {
     if ($action === 'read') {
         if (isset($_GET[$resource['keys'][0]])) {
             [$where,$params] = resource_key($resource, $_GET);
-            $columns = array_unique(array_merge($resource['keys'],array_keys($resource['fields'])));
+            $columns = array_unique(array_merge($resource['keys'],array_keys($resource['fields']), $resource['readOnly'] ?? []));
             $result = query_rows('SELECT `'.implode('`,`',$columns).'` FROM `'.$resource['table'].'` WHERE '.$where,$params);
             if (!$result) throw new RuntimeException('Élément introuvable.',404);
         } else $result = resource_rows($resource);
@@ -32,10 +39,24 @@ try {
             if (!$existing) throw new RuntimeException('Élément introuvable.',404);
             if ($entity === 'users' && $action === 'delete' && $existing['isAdmin']) throw new InvalidArgumentException('Un compte administrateur ne peut pas être supprimé ici.');
         }
+        if ($action === 'delete' && in_array($entity, ['albums','artistes','groupes'])) {
+            $imageSql = match ($entity) {
+                'albums' => 'SELECT imageA FROM ALBUM WHERE idAlb = ?',
+                'artistes' => 'SELECT imageA FROM ALBUM WHERE idArt = ?',
+                'groupes' => 'SELECT imageA FROM ALBUM WHERE idGp = ? OR idArt IN (SELECT idArt FROM ARTISTE WHERE idGp = ?)',
+            };
+            $id = $existing[$resource['keys'][0]];
+            $imagesToRemove = array_column(query_rows($imageSql, $entity === 'groupes' ? [$id,$id] : [$id]), 'imageA');
+        }
         if ($action === 'delete') {
             $stmt = db()->prepare('DELETE FROM `'.$resource['table'].'` WHERE '.$where); $stmt->execute($params);
         } else {
             $data = validate_resource($resource,$input);
+            if ($entity === 'albums') {
+                $newImage = upload_album_image();
+                $data['imageA'] = $newImage ?? (($input['remove_image'] ?? '') === '1' ? null : ($existing['imageA'] ?? null));
+                if (($existing['imageA'] ?? null) !== $data['imageA']) $imagesToRemove[] = $existing['imageA'] ?? null;
+            }
             if ($entity === 'users') {
                 $password = $input['password'] ?? '';
                 if (!is_string($password) || ($password !== '' && (strlen($password)<12 || strlen($password)>72))) throw new InvalidArgumentException('Le mot de passe doit contenir entre 12 et 72 octets.');
@@ -54,6 +75,8 @@ try {
             }
         }
         db()->commit();
+        foreach ($imagesToRemove as $imagePath) remove_album_image($imagePath);
+        $newImage = null;
         if (isset($result['passwordHash'])) unset($result['passwordHash']);
     }
     if ($json || $action === 'read') {
@@ -61,12 +84,13 @@ try {
     }
     $_SESSION['messages'] = ['Opération effectuée.'];
 } catch (Throwable $e) {
+    if ($newImage) remove_album_image($newImage);
     if (isset($DB) && $DB->inTransaction()) $DB->rollBack();
     $status = $e instanceof InvalidArgumentException || $e instanceof JsonException ? 422 : ($e instanceof PDOException ? 409 : ($e->getCode() >= 400 && $e->getCode() <= 599 ? $e->getCode() : 500));
     $message = $e instanceof PDOException ? 'Opération impossible : doublon ou données liées.' : ($status === 500 ? 'Erreur interne.' : $e->getMessage());
     if ($status === 500) error_log((string)$e);
     if ($json || $action === 'read') { http_response_code($status); header('Content-Type: application/json; charset=utf-8'); echo json_encode(['success'=>false,'error'=>$message],JSON_UNESCAPED_UNICODE); exit; }
-    if (in_array($status,[401,403,405])) { http_response_code($status); exit(h($message)); }
+    if (in_array($status,[401,403,405,413])) { http_response_code($status); exit(h($message)); }
     $_SESSION['messages'] = [$message];
     unset($input['password']);
     $_SESSION['old'][$entity] = $input;

@@ -828,3 +828,98 @@ footer {
 .catalogue-results { position: relative; max-width: var(--max-width); margin: 0 auto 24px; }
 .catalogue-empty { grid-column: 1 / -1; padding: 40px 24px; border: 1px dashed #9986ac; border-radius: 20px; text-align: center; }
 @media (prefers-reduced-motion: reduce) { .album-card { transition: none; } .album-card-link:hover .album-card, .album-card-link:focus-visible .album-card { transform: none; } }
+
+/* Pochettes et fiche album accessible. */
+.album-cover-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; }
+.album-cover:has(.album-cover-image) .album-cover-category { background: #fff; color: #35134d; }
+.admin-cover-preview { display: block; width: 160px; height: 160px; object-fit: contain; margin-bottom: 16px; }
+.skip-content { position: fixed; left: 16px; top: -100px; z-index: 9999; padding: 12px 20px; background: #fff; color: #35134d; }
+.skip-content:focus { top: 16px; }
+.album-page { max-width: 1120px; margin: auto; padding: 32px 24px 64px; color: #271c32; }
+.album-page > nav { margin-bottom: 28px; }
+.album-page a:not(.btn) { color: #530096; text-underline-offset: 4px; }
+.album-page :is(a,button):focus-visible { outline: 3px solid #530096; outline-offset: 5px; }
+.album-hero { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 40px; align-items: start; }
+.album-artwork { aspect-ratio: 1; border-radius: 20px; overflow: hidden; background: #e9e1f0; }
+.album-artwork img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.album-no-cover { height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #530096; }
+.album-no-cover > span { font-size: 5rem; }
+.album-summary h1 { font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.15; overflow-wrap: anywhere; }
+.album-byline { font-size: 1.15rem; overflow-wrap: anywhere; }
+.album-facts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; margin: 24px 0; }
+.album-facts dt { font-size: .85rem; color: #615367; }
+.album-facts dd { margin: 4px 0 0; overflow-wrap: anywhere; }
+.album-page .btn { padding: 12px 20px; min-height: 44px; white-space: normal; }
+.album-tracks, .album-members { margin-top: 40px; padding: 24px; background: #fff; border: 1px solid #ded5e6; border-radius: 20px; }
+.album-page h2 { font-size: 1.4rem; margin-bottom: 20px; }
+.track-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.track-table th, .track-table td { padding: 14px 8px; border-bottom: 1px solid #e7e1ec; overflow-wrap: anywhere; }
+.track-table thead th { color: #615367; font-size: .85rem; }
+.track-table th:first-child { width: 45px; }
+.track-table th:last-child { width: 80px; }
+.track-table td:last-child, .track-table th:last-child { text-align: right; }
+@media (max-width: 700px) { .album-hero { grid-template-columns: 1fr; gap: 24px; } .album-artwork { max-width: 340px; width: 100%; } .album-tracks { padding: 16px 8px; } .album-page { padding: 24px 16px 40px; } }
+/* Identité commune : violet, jaune, blanc et noir. */
+body { background: #f7f4ff; color: #17101f; }
+.site-header { padding: 16px 24px; background: #30105c; color: #fff; border-bottom: 4px solid #f5dc72; }
+.site-header .navbar-brand, .site-header .nav-link { color: #fff; }
+.site-header .navbar-brand { display: flex; align-items: center; gap: 10px; font-weight: 800; }
+.site-header .nav-link:hover, .site-header .navbar-brand:hover { color: #f5dc72; }
+.brand-michel { width: 48px; height: 48px; object-fit: contain; background: #f5dc72; border-radius: 50%; }
+.site-header .navbar-toggler { background: #f5dc72; }
+.site-header > .container-fluid { gap: 16px; }
+.site-header .d-flex { gap: 8px; flex-wrap: wrap; }
+.btn { min-height: 44px; border-radius: 12px; font-weight: 700; }
+.btn-primary, .btn-success { background: #530096; border-color: #530096; color: #fff; }
+.btn-primary:hover, .btn-success:hover { background: #30105c; border-color: #30105c; }
+.btn-dark, .btn-warning { background: #f5dc72; border-color: #f5dc72; color: #17101f; }
+.btn-dark:hover, .btn-warning:hover { background: #e8c64a; border-color: #e8c64a; color: #17101f; }
+a { color: #530096; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid #a868ff; outline-offset: 4px; }
+.form-control:focus, .form-select:focus { border-color: #530096; box-shadow: 0 0 0 3px #a868ff44; }
+.admin-panel h1, .auth-card h1 { font-size: clamp(1.8rem,4vw,3rem); color: #30105c; }
+.admin-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 24px; margin-top: 32px; }
+.admin-block { padding: 26px; background: #fff; border: 1px solid #dfd2ed; border-top: 5px solid #530096; border-radius: 20px; box-shadow: 0 8px 24px #30105c0d; }
+.admin-block h2 { font-size: 1.4rem; margin: 20px 0 12px; }
+.admin-block p { color: #5f5169; }
+.admin-count { display: inline-block; background: #f5dc72; border-radius: 20px; padding: 5px 12px; font-size: .8rem; font-weight: 700; }
+.admin-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.auth-page { padding: 48px 20px; display: flex; justify-content: center; }
+.auth-card { width: 100%; max-width: 560px; background: #fff; border: 1px solid #dfd2ed; border-radius: 24px; padding: clamp(24px,5vw,40px); box-shadow: 0 16px 40px #30105c12; }
+.auth-card h1, .auth-card > .eyebrow, .auth-switch { text-align: center; }
+.auth-michel { display: block; width: 84px; height: 84px; margin: 0 auto 20px; object-fit: contain; background: #f5dc72; border-radius: 50%; }
+.auth-card label { font-weight: 600; margin-bottom: 6px; }
+.auth-card form > .btn { width: 100%; }
+.auth-switch { margin: 24px 0 0; }
+.field-help, .password-rules { font-size: .85rem; color: #615367; }
+.password-rules { list-style: none; padding: 0; background: #f7f4ff; border-radius: 12px; padding: 14px; }
+.password-rules li { margin: 5px 0; }
+.password-rules .rule-valid { color: #28542d; font-weight: 700; }
+.site-footer { background: #17101f; color: #fff; padding: 30px; flex-wrap: wrap; }
+.site-footer nav { display: flex; flex-wrap: wrap; gap: 20px; }
+.site-footer a { color: #f5dc72; }
+.cookie-banner { max-width: 1100px; margin: 24px auto; padding: 24px; border: 2px solid #530096; border-radius: 20px; background: #fff; color: #17101f; }
+.cookie-banner h2 { font-size: 1.3rem; }
+.cookie-banner form { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+.legal-page { max-width: 850px; padding: 40px 24px; margin: auto; line-height: 1.8; }
+.legal-page h1 { font-size: 2.4rem; color: #30105c; }
+.legal-page h2 { font-size: 1.3rem; margin-top: 28px; }
+@media (max-width: 900px) { .admin-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 600px) { .admin-grid { grid-template-columns: 1fr; } .site-header { padding: 12px; } .cookie-banner { margin: 16px; } }
+.catalogue-intro { position: relative; z-index: 1; max-width: var(--max-width); margin: 0 auto 56px; padding: 32px; border-radius: 24px; background: #f5dc72; color: #30105c; }
+.catalogue-intro h1 { font-size: clamp(1.8rem,5vw,3.5rem); line-height: 1.15; overflow-wrap: anywhere; }
+.catalogue-intro p { max-width: 640px; }
+.spam-trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.site-header .account-link { padding: 10px; text-decoration: underline; text-underline-offset: 4px; }
+.site-header form[role="search"] { min-width: 0; flex: 1 1 180px; }
+.site-header form[role="search"] input { min-width: 0; width: 100%; }
+.container > h1 { font-size: clamp(1.8rem,5vw,3rem); overflow-wrap: anywhere; }
+.table-responsive .btn { margin: 3px 0; }
+@media (max-width: 600px) {
+  .site-header > .container-fluid > .d-flex { width: 100%; }
+  .site-header .navbar-brand { font-size: 1rem; }
+  .catalogue-intro { padding: 24px 16px; }
+  .cookie-banner button { width: 100%; }
+  .site-footer { padding: 24px 16px; }
+  .site-footer nav { flex-direction: column; }
+}

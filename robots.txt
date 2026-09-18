@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /views/backend/
+Disallow: /scripts/
+Disallow: /tests/
+Disallow: /includes/
+Disallow: /functions/
+Disallow: /config/
+Disallow: /BDD/
+Disallow: /*?q=
+Sitemap: http://localhost/sitemap.php

@@ -29,7 +29,7 @@ require ROOT.'/header.php';
 </tbody></table></div>
 <?php else: $action=['create'=>'create','edit'=>'update','delete'=>'delete'][$page]; ?>
 <h2><?= ['create'=>'Créer','edit'=>'Modifier','delete'=>'Supprimer'][$page] ?></h2>
-<form method="post" action="<?= h(BASE_URL.'/api/'.$entity.'/'.$action.'.php') ?>">
+<form method="post" enctype="multipart/form-data" action="<?= h(BASE_URL.'/api/'.$entity.'/'.$action.'.php') ?>">
 <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
 <?php if ($page !== 'create'): foreach ($resource['keys'] as $key): ?>
 <input type="hidden" name="<?= h(($page==='edit'?'original_':'').$key) ?>" value="<?= h($record[$key]) ?>">
@@ -48,6 +48,17 @@ require ROOT.'/header.php';
 <input class="form-control" id="<?= h($key) ?>" name="<?= h($key) ?>" type="<?= h($field[1]) ?>" value="<?= h(is_scalar($value)?$value:'') ?>" <?= isset($field[2])?'maxlength="'.(int)$field[2].'"':'' ?> <?= $field[1]==='number'?'min="0.01" step="any"':'' ?> required>
 <?php endif; ?></div>
 <?php endforeach; ?>
+<?php if ($entity === 'albums'): ?>
+<fieldset class="mb-4"><legend>Pochette de l’album</legend>
+<?php if (album_image_url($record['imageA'] ?? null)): ?>
+<img class="admin-cover-preview" src="<?= h(album_image_url($record['imageA'])) ?>" alt="Pochette actuelle de <?= h($record['nomA']) ?>">
+<p><label><input type="checkbox" name="remove_image" value="1"> Supprimer la pochette actuelle</label></p>
+<?php endif; ?>
+<label class="form-label" for="imageA">Ajouter ou remplacer la pochette (facultatif)</label>
+<input class="form-control" type="file" name="imageA" id="imageA" accept="image/jpeg,image/png,image/webp" aria-describedby="image-help">
+<p id="image-help" class="form-text">JPEG, PNG ou WebP. 5 Mo maximum, 6 000 pixels par côté et 16 millions de pixels maximum. Sans nouveau fichier, la pochette est conservée. Après une erreur, sélectionnez à nouveau le fichier.</p>
+</fieldset>
+<?php endif; ?>
 <?php if ($entity === 'users'): ?>
 <div class="mb-3"><label class="form-label" for="password">Mot de passe (facultatif, 12 caractères minimum)</label>
 <input class="form-control" type="password" id="password" name="password" autocomplete="new-password">
