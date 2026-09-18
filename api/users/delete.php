@@ -10,8 +10,12 @@
  * 4) Exécute la requête SQL adaptée (INSERT/UPDATE/DELETE) avec les valeurs préparées.
  * 5) Gère le feedback (flash/session/erreur) et redirige l'utilisateur vers l'écran cible.
  */
-session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !verify_csrf_token($_POST['csrf_token'] ?? null)) {
+    http_response_code(403);
+    exit('Jeton CSRF invalide.');
+}
+
 require_once '../../functions/ctrlSaisies.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -38,7 +42,7 @@ if (empty($ba_bec_numMemb)) {
     exit();
 }
 
-$ba_bec_delete_result = sql_delete('MEMBRE', "numMemb = $ba_bec_numMemb");
+$ba_bec_delete_result = sql_delete('MEMBRE', 'numMemb = :member_id', ['member_id' => $ba_bec_numMemb]);
 if ($ba_bec_delete_result['success']) {
     flash_success();
 } elseif (!empty($ba_bec_delete_result['constraint']) || sql_is_foreign_key_error($ba_bec_delete_result['message'] ?? '', $ba_bec_delete_result['code'] ?? null)) {

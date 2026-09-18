@@ -10,8 +10,12 @@
  * 4) Exécute la requête SQL adaptée (INSERT/UPDATE/DELETE) avec les valeurs préparées.
  * 5) Gère le feedback (flash/session/erreur) et redirige l'utilisateur vers l'écran cible.
  */
-session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !verify_csrf_token($_POST['csrf_token'] ?? null)) {
+    http_response_code(403);
+    exit('Jeton CSRF invalide.');
+}
+
 require_once '../../functions/ctrlSaisies.php';
 include '../../header.php';
 
@@ -49,7 +53,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (strlen($ba_bec_pseudoMemb) < 6 || strlen($ba_bec_pseudoMemb) > 70) {
         $ba_bec_errors[] = "Erreur, le nom d'utilisateur doit contenir entre 6 et 70 caractères.";
     } else {
-        $ba_bec_verif = sql_select('MEMBRE', 'pseudoMemb', "pseudoMemb = '$ba_bec_pseudoMemb'");
+        $ba_bec_verif = sql_select('MEMBRE', 'pseudoMemb', 'pseudoMemb = :pseudo', null, null, null, [
+            'pseudo' => $ba_bec_pseudoMemb,
+        ]);
         if (!empty($ba_bec_verif)) {
             $ba_bec_errors[] = "Veuillez choisir un nom d'utilisateur disponible.";
             $ba_bec_pseudoMemb = null;
@@ -89,7 +95,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($ba_bec_eMailMemb !== $ba_bec_eMailMemb2) {
         $ba_bec_errors[] = "Les adresses mail doivent être identiques.";
         $ba_bec_eMailMemb = null;
-    } elseif (!empty(sql_select('MEMBRE', 'eMailMemb', "eMailMemb = '$ba_bec_eMailMemb'"))) {
+    } elseif (!empty(sql_select('MEMBRE', 'eMailMemb', 'eMailMemb = :email', null, null, null, [
+        'email' => $ba_bec_eMailMemb,
+    ]))) {
         $ba_bec_errors[] = "Cette adresse email est déjà utilisée.";
         $ba_bec_eMailMemb = null;
     }
@@ -112,7 +120,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $ba_bec_insert_result = sql_insert(
             'MEMBRE',
             'prenomMemb, nomMemb, pseudoMemb, passMemb, eMailMemb, dtCreaMemb, accordMemb, numStat',
-            "'$ba_bec_prenomMemb', '$ba_bec_nomMemb', '$ba_bec_pseudoMemb', '$ba_bec_hash_password', '$ba_bec_eMailMemb', '$ba_bec_dtCreaMemb', '1', '$ba_bec_numStat'"
+            ':first_name, :last_name, :pseudo, :password, :email, :created_at, :consent, :status_id',
+            [
+                'first_name' => $ba_bec_prenomMemb,
+                'last_name' => $ba_bec_nomMemb,
+                'pseudo' => $ba_bec_pseudoMemb,
+                'password' => $ba_bec_hash_password,
+                'email' => $ba_bec_eMailMemb,
+                'created_at' => $ba_bec_dtCreaMemb,
+                'consent' => 1,
+                'status_id' => $ba_bec_numStat,
+            ]
         );
         if ($ba_bec_insert_result['success']) {
             flash_success();

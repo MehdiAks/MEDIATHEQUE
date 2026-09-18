@@ -10,8 +10,12 @@
  * 4) Exécute la requête SQL adaptée (INSERT/UPDATE/DELETE) avec les valeurs préparées.
  * 5) Gère le feedback (flash/session/erreur) et redirige l'utilisateur vers l'écran cible.
  */
-session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !verify_csrf_token($_POST['csrf_token'] ?? null)) {
+    http_response_code(403);
+    exit('Jeton CSRF invalide.');
+}
+
 require_once '../../functions/ctrlSaisies.php';
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
@@ -46,7 +50,9 @@ if (!$ba_bec_numMemb) {
     $ba_bec_errors[] = "ID du membre manquant.";
 } else {
     // Vérifier que le membre existe bien
-    $ba_bec_current = sql_select('MEMBRE', 'numMemb, numStat', "numMemb = '$ba_bec_numMemb'");
+    $ba_bec_current = sql_select('MEMBRE', 'numMemb, numStat', 'numMemb = :member_id', null, null, null, [
+        'member_id' => $ba_bec_numMemb,
+    ]);
     if (empty($ba_bec_current)) {
         $ba_bec_errors[] = "Le membre spécifié n'existe pas.";
     } else {
@@ -99,12 +105,22 @@ if (isset($ba_bec_numMemb, $ba_bec_prenomMemb, $ba_bec_nomMemb, $ba_bec_eMailMem
     // On met à jour les champs prénom, nom, email et statut.
     // Le mot de passe est mis à jour seulement s'il a été renseigné
     if (isset($ba_bec_hash_password)) {
-        $ba_bec_updateFields = "prenomMemb = '$ba_bec_prenomMemb', nomMemb = '$ba_bec_nomMemb', passMemb = '$ba_bec_hash_password', eMailMemb = '$ba_bec_eMailMemb', numStat = '$ba_bec_numStat'";
+        $ba_bec_updateFields = 'prenomMemb = :first_name, nomMemb = :last_name, passMemb = :password, eMailMemb = :email, numStat = :status_id';
     } else {
-        $ba_bec_updateFields = "prenomMemb = '$ba_bec_prenomMemb', nomMemb = '$ba_bec_nomMemb', eMailMemb = '$ba_bec_eMailMemb', numStat = '$ba_bec_numStat'";
+        $ba_bec_updateFields = 'prenomMemb = :first_name, nomMemb = :last_name, eMailMemb = :email, numStat = :status_id';
     }
 
-    $ba_bec_update_result = sql_update('MEMBRE', $ba_bec_updateFields, "numMemb = '$ba_bec_numMemb'");
+    $ba_bec_parameters = [
+        'first_name' => $ba_bec_prenomMemb,
+        'last_name' => $ba_bec_nomMemb,
+        'email' => $ba_bec_eMailMemb,
+        'status_id' => $ba_bec_numStat,
+        'member_id' => $ba_bec_numMemb,
+    ];
+    if (isset($ba_bec_hash_password)) {
+        $ba_bec_parameters['password'] = $ba_bec_hash_password;
+    }
+    $ba_bec_update_result = sql_update('MEMBRE', $ba_bec_updateFields, 'numMemb = :member_id', $ba_bec_parameters);
     if ($ba_bec_update_result['success']) {
         flash_success();
         header('Location: ../../views/backend/members/list.php');

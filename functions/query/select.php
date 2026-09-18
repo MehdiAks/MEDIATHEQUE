@@ -1,6 +1,6 @@
 <?php
 // select instances
-function sql_select($table, $attributs = '*', $where = null, $group = null, $order = null, $limit = null){
+function sql_select($table, $attributs = '*', $where = null, $group = null, $order = null, $limit = null, array $parameters = []){
     global $DB;
 
     //connect to database
@@ -23,13 +23,14 @@ function sql_select($table, $attributs = '*', $where = null, $group = null, $ord
         $query .= " LIMIT $limit";
     }
 
-    $result = $DB->query($query);
+    $statement = $DB->prepare($query);
+    $statement->execute($parameters);
     
     $error = $DB->errorInfo();
     if($error[0] != 0){
         echo("Error: " . $error[2]);
     }else{
-        $result = $result->fetchAll();
+        $result = $statement->fetchAll();
     }
 
     if(!$result){
