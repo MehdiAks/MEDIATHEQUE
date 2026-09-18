@@ -49,7 +49,7 @@ $noindex = str_contains($pagePath,'/backend/') || isset($_GET['q']) || http_resp
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body data-image-fallback="<?= $assetUrl('src/images/Michel.png') ?>">
+<body data-image-fallback="<?= $assetUrl('src/images/Michel.png') ?>" data-base-url="<?= h(BASE_URL) ?>">
 <?php if (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'index.php'): ?>
 <div class="site-intro-layer is-pending" id="siteIntroLayer" role="dialog" aria-modal="true" aria-labelledby="site-intro-title">
   <div class="site-intro-pattern" aria-hidden="true"></div>

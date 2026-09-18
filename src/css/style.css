@@ -927,6 +927,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .audio-player-info small { color: #626b76; }
 .audio-player-controls { display: flex; align-items: center; gap: 6px; }
 .audio-player-button { width: 38px; height: 38px; display: grid; place-items: center; padding: 0; border: 1px solid #aeb7c1; border-radius: 50%; background: rgba(255,255,255,.58); color: #30105c; cursor: pointer; font: inherit; font-size: .85rem; font-weight: 800; }
+.audio-player-button img { width: 27px; height: 27px; object-fit: contain; display: block; }
 .audio-player-button:hover, .audio-player-button:focus-visible { border-color: #f5dc72; background: #f5dc72; color: #30105c; }
 .audio-player-play { background: #f5dc72; color: #30105c; }
 .audio-player-like { color: #68727d; font-size: 1.3rem; }

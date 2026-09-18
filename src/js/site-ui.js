@@ -93,9 +93,13 @@
   }
   const audioTracks = [...document.querySelectorAll('.track-audio')];
   if (audioPlayer && audioTracks.length) {
+    const mediaBaseUrl = document.body.dataset.baseUrl || '';
+    const playIconUrl = `${mediaBaseUrl}/src/images/playmusic.png`;
+    const pauseIconUrl = `${mediaBaseUrl}/src/images/stopmusic.png`;
     const playerTitle = audioPlayer.querySelector('[data-player-title]');
     const playerArtist = audioPlayer.querySelector('[data-player-artist]');
     const playerPlay = audioPlayer.querySelector('[data-player-play]');
+    const playerPlayIcon = audioPlayer.querySelector('[data-player-play-icon]');
     const playerLike = audioPlayer.querySelector('[data-player-like]');
     const playerProgress = audioPlayer.querySelector('[data-player-progress]');
     const playerCurrent = audioPlayer.querySelector('[data-player-current]');
@@ -110,7 +114,6 @@
     };
     const updateLikeButton = () => {
       const liked = activeTrack?.dataset.playerLiked === 'true';
-      playerLike.textContent = liked ? '♥' : '♡';
       playerLike.setAttribute('aria-label', liked ? 'Retirer des favoris' : 'Ajouter aux favoris');
       playerLike.setAttribute('title', liked ? 'Retirer des favoris' : 'Ajouter aux favoris');
       playerLike.setAttribute('aria-pressed', String(liked));
@@ -139,8 +142,8 @@
     };
 
     audioTracks.forEach(track => {
-      track.addEventListener('play', () => { showPlayer(track); playerDisc.classList.add('is-playing'); playerDisc.style.animationPlayState = 'running'; playerPlay.textContent = 'Ⅱ'; playerPlay.setAttribute('aria-label', 'Mettre en pause'); });
-      track.addEventListener('pause', () => { if (activeTrack === track) { playerDisc.style.animationPlayState = 'paused'; playerPlay.textContent = '▶'; } });
+      track.addEventListener('play', () => { showPlayer(track); playerDisc.classList.add('is-playing'); playerDisc.style.animationPlayState = 'running'; playerPlayIcon.src = pauseIconUrl; playerPlay.setAttribute('aria-label', 'Mettre en pause'); });
+      track.addEventListener('pause', () => { if (activeTrack === track) { playerDisc.style.animationPlayState = 'paused'; playerPlayIcon.src = playIconUrl; playerPlay.setAttribute('aria-label', 'Lire la musique'); } });
       track.addEventListener('loadedmetadata', () => { if (activeTrack === track) playerDuration.textContent = formatTime(track.duration); });
       track.addEventListener('timeupdate', () => {
         if (activeTrack !== track) return;
