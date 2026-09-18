@@ -6,12 +6,16 @@
     <title>Médiathèque</title>
     <!-- Load CSS -->
     <link rel="stylesheet" href="src/css/style.css" />
-    <!-- Bootstrap CSS only -->
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
     <link rel="shortcut icon" type="image/x-icon" href="src/images/article1.png" />
+    <!-- Google Fonts & styles spécifiques -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <?php
-//load config
+// load config
 require_once 'config.php';
 ?>
 <body>
@@ -31,10 +35,10 @@ require_once 'config.php';
         </li>
       </ul>
     </div>
-    <!--right align-->
+    <!-- right align -->
     <div class="d-flex">
       <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Rechercher sur le site…" aria-label="Search" >
+          <input class="form-control me-2" type="search" placeholder="Rechercher sur le site…" aria-label="Search">
       </form>
       <a class="btn btn-primary m-1" href="/views/backend/security/login.php" role="button">Login</a>
       <a class="btn btn-dark m-1" href="/views/backend/security/signup.php" role="button">Sign up</a>

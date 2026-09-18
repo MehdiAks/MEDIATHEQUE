@@ -1,14 +1,19 @@
 <?php
-//ctrl saisies form avant import bdd
+// Fonction de contrôle des saisies avant insertion en base de données (BDD).
 function ctrlSaisies($saisie){
+    // Si la saisie est nulle, on retourne une chaîne vide pour éviter les erreurs.
+    if ($saisie === null) {
+        return '';
+    }
 
-    // Convertion caractères spéciaux en entités HTML => peu performant
-    // Préférer htmlentities()
-    // $saisie = htmlspecialchars($saisie, ENT_QUOTES);
-    // Suppression des espaces (ou d'autres caractères) en début et fin de chaîne
+    // Convertit les caractères spéciaux en entités HTML pour éviter l'injection HTML.
+    // ENT_QUOTES convertit aussi les guillemets simples et doubles.
+    $saisie = htmlspecialchars((string) $saisie, ENT_QUOTES);
+    // Supprime les espaces et caractères invisibles en début et fin de chaîne.
     $saisie = trim($saisie);
-    // Suppression des antislashs d'une chaîne
+    // Retire les antislashs ajoutés par magic_quotes (si activé dans l'environnement).
     $saisie = stripslashes($saisie);
+    // Retourne la saisie nettoyée et sécurisée.
     return $saisie;
 }
 ?>
