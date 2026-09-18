@@ -161,6 +161,7 @@ create table USER
    eMailUser varchar(50) not null,   -- PK
    nomEUser varchar(50),
    prenomUser varchar(50),
+   passUser varchar(255) not null,
    primary key (eMailUser)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
