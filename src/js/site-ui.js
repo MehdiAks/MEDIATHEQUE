@@ -67,14 +67,29 @@
   const cursorDisk = document.getElementById('cursorDisk');
   if (cursorDisk && window.matchMedia('(pointer: fine)').matches) {
     let cursorFrame = null;
+    let cursorX = 0;
+    let cursorY = 0;
+    let targetX = 0;
+    let targetY = 0;
+    let hasCursorPosition = false;
     document.addEventListener('mousemove', event => {
-      if (cursorFrame) cancelAnimationFrame(cursorFrame);
-      cursorFrame = requestAnimationFrame(() => {
-        cursorDisk.style.left = `${event.clientX}px`;
-        cursorDisk.style.top = `${event.clientY}px`;
+      targetX = event.clientX;
+      targetY = event.clientY;
+      if (!hasCursorPosition) {
+        cursorX = targetX;
+        cursorY = targetY;
+        hasCursorPosition = true;
         cursorDisk.classList.add('is-visible');
-      });
+      }
+      if (cursorFrame === null) cursorFrame = requestAnimationFrame(updateCursorDisk);
     });
+    function updateCursorDisk() {
+      cursorX += (targetX - cursorX) * .12;
+      cursorY += (targetY - cursorY) * .12;
+      cursorDisk.style.left = `${cursorX}px`;
+      cursorDisk.style.top = `${cursorY}px`;
+      cursorFrame = requestAnimationFrame(updateCursorDisk);
+    }
   }
   const audioTracks = [...document.querySelectorAll('.track-audio')];
   if (audioPlayer && audioTracks.length) {
@@ -114,7 +129,7 @@
     const hidePlayer = () => {
       audioPlayer.classList.remove('is-visible');
       audioPlayer.hidden = true;
-      playerDisc.classList.remove('is-playing');
+      playerDisc.style.animationPlayState = 'paused';
       activeTrack = null;
     };
     const playTrack = track => {
@@ -124,8 +139,8 @@
     };
 
     audioTracks.forEach(track => {
-      track.addEventListener('play', () => { showPlayer(track); playerDisc.classList.add('is-playing'); playerPlay.textContent = 'Ⅱ'; playerPlay.setAttribute('aria-label', 'Mettre en pause'); });
-      track.addEventListener('pause', () => { if (activeTrack === track) { playerDisc.classList.remove('is-playing'); playerPlay.textContent = '▶'; } });
+      track.addEventListener('play', () => { showPlayer(track); playerDisc.classList.add('is-playing'); playerDisc.style.animationPlayState = 'running'; playerPlay.textContent = 'Ⅱ'; playerPlay.setAttribute('aria-label', 'Mettre en pause'); });
+      track.addEventListener('pause', () => { if (activeTrack === track) { playerDisc.style.animationPlayState = 'paused'; playerPlay.textContent = '▶'; } });
       track.addEventListener('loadedmetadata', () => { if (activeTrack === track) playerDuration.textContent = formatTime(track.duration); });
       track.addEventListener('timeupdate', () => {
         if (activeTrack !== track) return;
@@ -165,7 +180,6 @@
       if (!activeTrack) return;
       activeTrack.pause();
       activeTrack.currentTime = 0;
-      playerDisc.classList.remove('is-playing');
       hidePlayer();
     });
     playerProgress.addEventListener('input', () => {
