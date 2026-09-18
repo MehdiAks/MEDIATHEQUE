@@ -92,6 +92,22 @@
     }
   }
   const audioTracks = [...document.querySelectorAll('.track-audio')];
+  document.querySelectorAll('[data-track-trigger]').forEach(trigger => {
+    const track = document.getElementById(trigger.dataset.trackTrigger);
+    const icon = trigger.querySelector('img');
+    if (!track || !icon) return;
+    trigger.addEventListener('click', () => {
+      if (track.paused) track.play(); else track.pause();
+    });
+    track.addEventListener('play', () => {
+      icon.src = `${document.body.dataset.baseUrl || ''}/src/images/stopmusic.png`;
+      trigger.setAttribute('aria-label', `Mettre en pause ${track.dataset.trackTitle || 'la musique'}`);
+    });
+    track.addEventListener('pause', () => {
+      icon.src = `${document.body.dataset.baseUrl || ''}/src/images/playmusic.png`;
+      trigger.setAttribute('aria-label', `Lire ${track.dataset.trackTitle || 'la musique'}`);
+    });
+  });
   if (audioPlayer && audioTracks.length) {
     const mediaBaseUrl = document.body.dataset.baseUrl || '';
     const playIconUrl = `${mediaBaseUrl}/src/images/playmusic.png`;
