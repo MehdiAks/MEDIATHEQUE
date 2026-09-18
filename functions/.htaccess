@@ -1,0 +1,2 @@
+# Interdit les requêtes HTTP ; les inclusions PHP restent autorisées.
+Require all denied

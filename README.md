@@ -8,7 +8,7 @@ Application PHP 8.1+ / MySQL : catalogue, recherche, détail des albums, pistes,
 2. Pour une nouvelle base, importer `BDD/CreateDbMediatheq22.sql` puis `BDD/002_authentication.sql`. Pour une base existante, importer **uniquement la migration 002, une seule fois**. Sélectionner la bonne base avant l’import. Le nom du schéma initial est `MEDIATHEQ22` ; adapter le script si un autre nom est nécessaire.
 3. Créer l’administrateur avec `php scripts/create-admin.php votre@email.fr`, puis saisir son mot de passe sur l’entrée standard. La commande permet aussi de promouvoir un compte existant et de remplacer son mot de passe. Aucun compte public ne reçoit automatiquement les droits administrateur.
 4. Servir le dossier du projet avec MAMP, ou lancer `php -S localhost:8000 router.php` et définir `BASE_URL=http://localhost:8000`.
-   Sous Apache, activer les fichiers `.htaccess` et `mod_rewrite` pour protéger les fichiers de configuration et les scripts internes.
+   Sous Apache, activer les fichiers `.htaccess` (`AllowOverride All`, sans dépendance à `mod_rewrite`) pour protéger les fichiers de configuration et les scripts internes.
 5. Se connecter puis ouvrir **Admin**. Créer les groupes/artistes, les albums, puis les titres.
 
 Sur ce Mac, PHP est disponible à `/Applications/MAMP/bin/php/php8.3.28/bin/php`.
