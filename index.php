@@ -21,7 +21,8 @@ $requete = "
   ORDER BY a.dtSortieA DESC
 ";
 
-$stmt = $bdd->query($requete);
+$stmt = $bdd->prepare($requete);
+$stmt->execute();
 $albums = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -78,12 +79,14 @@ $albums = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 $createur = htmlspecialchars($album['prenomArt'] . ' ' . $album['nomArt']) . " (Artiste)";
             }
           ?>
+          <a class="album-card-link" href="<?= htmlspecialchars(BASE_URL . '/album.php?id=' . rawurlencode((string) $album['idAlb']), ENT_QUOTES, 'UTF-8') ?>">
           <article class="album-card">
             <h3><?= htmlspecialchars($album['nomA']) ?></h3>
             <p><strong>Créateur :</strong> <?= $createur ?></p>
             <p><strong>Sortie :</strong> <?= htmlspecialchars($album['dtSortieA']) ?></p>
             <p><strong>Label :</strong> <?= htmlspecialchars($album['nomLabelA']) ?></p>
           </article>
+          </a>
         <?php endforeach; ?>
       <?php else: ?>
         <p>Aucun album trouvé dans la médiathèque.</p>

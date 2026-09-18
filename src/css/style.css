@@ -351,6 +351,16 @@ h1 span {
   z-index: 1;
 }
 
+.album-card-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.album-card-link:focus-visible {
+  outline: 3px solid var(--purple);
+  outline-offset: 4px;
+}
+
 .project-card {
   min-width: 0;
   color: var(--black);
