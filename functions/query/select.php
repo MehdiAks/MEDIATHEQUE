@@ -1,42 +1,18 @@
 <?php
-// select instances
-function sql_select($table, $attributs = '*', $where = null, $group = null, $order = null, $limit = null){
+/** Exécute uniquement une requête SELECT écrite par l'application. */
+function sql_select($query, array $parameters = array()){
     global $DB;
 
     //connect to database
-    if(!$DB){
+    if(!isset($DB) || !$DB){
         sql_connect();
     }
 
-    //no prepare query for PDO
-    $query = "SELECT " . $attributs . " FROM $table";
-    if($where){
-        $query .= " WHERE $where";
+    if (!preg_match('/^\s*SELECT\b/i', $query)) {
+        throw new InvalidArgumentException('sql_select accepte uniquement une requête SELECT fixe.');
     }
-    if($group){
-        $query .= " GROUP BY $group";
-    }
-    if($order){
-        $query .= " ORDER BY $order";
-    }
-    if($limit){
-        $query .= " LIMIT $limit";
-    }
-
-    $result = $DB->query($query);
-    
-    $error = $DB->errorInfo();
-    if($error[0] != 0){
-        echo("Error: " . $error[2]);
-    }else{
-        $result = $result->fetchAll();
-    }
-
-    if(!$result){
-        $result = array();
-    }
-
-    //return result
-    return $result;
+    $request = $DB->prepare($query);
+    $request->execute($parameters);
+    return $request->fetchAll();
 }
 ?>
