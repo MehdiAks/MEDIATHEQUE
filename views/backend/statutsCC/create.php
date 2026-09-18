@@ -11,6 +11,7 @@ include '../../../header.php';
         <div class="col-md-12">
             <!-- Form to create a new statut -->
             <form action="<?php echo ROOT_URL . '/api/statuts/create.php' ?>" method="post">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generate_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                 <div class="form-group">
                     <label for="libStat">Nom du statut</label>
                     <input id="libStat" name="libStat" class="form-control" type="text" autofocus="autofocus" />

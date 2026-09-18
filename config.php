@@ -10,9 +10,13 @@ require_once ROOT . '/includes/libs/DotEnv.php';
 //defines
 require_once ROOT . '/config/defines.php';
 
-//debug
-if (getenv('APP_DEBUG') == 'true') {
-    require_once ROOT . '/config/debug.php';
+// Configure error handling in every environment (production included).
+require_once ROOT . '/config/debug.php';
+
+// The central configuration owns session initialisation.  Individual pages and
+// endpoints must not start a second, independently configured session.
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
 //load functions

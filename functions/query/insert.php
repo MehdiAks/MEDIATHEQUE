@@ -1,6 +1,6 @@
 <?php
 // insert instance
-function sql_insert($table, $attributs, $values){
+function sql_insert($table, $attributs, $values, array $parameters = []){
     global $DB;
 
     //connect to database
@@ -14,7 +14,7 @@ function sql_insert($table, $attributs, $values){
         //prepare query for PDO
         $query = "INSERT INTO $table ($attributs) VALUES ($values);";
         $request = $DB->prepare($query);
-        $request->execute();
+        $request->execute($parameters);
         $DB->commit();
         $request->closeCursor();
     }

@@ -11,13 +11,20 @@
  * 5) Gère le feedback (flash/session/erreur) et redirige l'utilisateur vers l'écran cible.
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !verify_csrf_token($_POST['csrf_token'] ?? null)) {
+    http_response_code(403);
+    exit('Jeton CSRF invalide.');
+}
 require_once '../../functions/ctrlSaisies.php';
 
 $ba_bec_numMemb = ctrlSaisies($_POST['numMemb']);
 $ba_bec_numArt = ctrlSaisies($_POST['numArt']);
 
 // Suppression du like dans la base de données
-sql_delete('LIKEART', "numMemb = $ba_bec_numMemb AND numArt = $ba_bec_numArt");
+sql_delete('LIKEART', 'numMemb = :member AND numArt = :artist', [
+    'member' => $ba_bec_numMemb,
+    'artist' => $ba_bec_numArt,
+]);
 
 // Redirection vers la liste des likes après suppression
 header('Location: ../../views/backend/likes/list.php');

@@ -1,6 +1,6 @@
 <?php
 // delete instance
-function sql_delete($table, $where){
+function sql_delete($table, $where, array $parameters = []){
     global $DB;
 
     //connect to database
@@ -14,7 +14,7 @@ function sql_delete($table, $where){
         //prepare query for PDO
         $query = "DELETE FROM $table WHERE $where;";
         $request = $DB->prepare($query);
-        $request->execute();
+        $request->execute($parameters);
         $DB->commit();
         $request->closeCursor();
     }

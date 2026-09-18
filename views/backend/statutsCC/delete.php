@@ -3,7 +3,9 @@ include '../../../header.php';
 
 if(isset($_GET['numStat'])){
     $numStat = $_GET['numStat'];
-    $libStat = sql_select("STATUT", "libStat", "numStat = $numStat")[0]['libStat'];
+    $libStat = sql_select('STATUT', 'libStat', 'numStat = :status_id', null, null, null, [
+        'status_id' => $numStat,
+    ])[0]['libStat'];
 }
 ?>
 
@@ -16,6 +18,7 @@ if(isset($_GET['numStat'])){
         <div class="col-md-12">
             <!-- Form to create a new statut -->
             <form action="<?php echo ROOT_URL . '/api/statuts/delete.php' ?>" method="post">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generate_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
                 <div class="form-group">
                     <label for="libStat">Nom du statut</label>
                     <input id="numStat" name="numStat" class="form-control" style="display: none" type="text" value="<?php echo($numStat); ?>" readonly="readonly" />
