@@ -806,3 +806,25 @@ footer {
 @media (prefers-reduced-motion: reduce) {
   .project-actions { transition: none; }
 }
+
+/* Cartes du catalogue : grille inspirée des affiches de projets. */
+.album-grid { gap: 28px 24px; }
+.album-grid .album-card-link { display: block; min-width: 0; color: #241435; border-radius: 20px; }
+.album-grid .album-card-link:hover { color: #241435; }
+.album-card { height: 100%; overflow: hidden; border: 1px solid rgba(83,0,150,.12); border-radius: 20px; background: #fff; box-shadow: 0 8px 24px rgba(47,17,74,.08); transition: transform .2s ease, box-shadow .2s ease; }
+.album-card-link:hover .album-card, .album-card-link:focus-visible .album-card { transform: translateY(-5px); box-shadow: 0 16px 32px rgba(47,17,74,.16); }
+.album-cover { position: relative; aspect-ratio: 4 / 5; overflow: hidden; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; background: #c0add8; color: #35134d; isolation: isolate; }
+.album-cover--1 { background: #e9b8a4; color: #542333; }
+.album-cover--2 { background: #b9d5cc; color: #153f3b; }
+.album-cover--3 { background: #e8d58d; color: #493b13; }
+.album-cover-category { align-self: flex-start; padding: 5px 9px; border: 1px solid currentColor; border-radius: 30px; font-size: .65rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.album-vinyl { position: absolute; z-index: -1; width: 85%; aspect-ratio: 1; top: 22%; right: -24%; border-radius: 50%; background: radial-gradient(circle, #f3eadb 0 3%, #241c2b 3.5% 7%, #8e729e 7.5% 22%, #29232e 22.5% 24%, transparent 24.5%), repeating-radial-gradient(circle, #211c27 0 2px, #39313f 3px 4px); box-shadow: -12px 15px 25px #24143533; transform: rotate(-25deg); }
+.album-cover-name { max-width: 85%; margin-top: auto; padding: 40px 0 45px; font-family: 'Archivo Black', sans-serif; font-size: clamp(1.3rem, 2.2vw, 2rem); line-height: 1.05; overflow-wrap: anywhere; text-shadow: 0 1px 12px #ffffff99; }
+.album-cover-action { position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 18px; display: flex; justify-content: space-between; background: rgba(255,255,255,.93); font-size: .75rem; font-weight: 700; }
+.album-card-body { padding: 18px; }
+.album-card-body h3 { margin: 0 0 6px; font-size: 1.05rem; font-weight: 800; overflow-wrap: anywhere; }
+.album-creator { margin: 0 0 10px; font-size: .85rem; overflow-wrap: anywhere; }
+.album-meta { margin: 0; color: #706879; font-size: .75rem; overflow-wrap: anywhere; }
+.catalogue-results { position: relative; max-width: var(--max-width); margin: 0 auto 24px; }
+.catalogue-empty { grid-column: 1 / -1; padding: 40px 24px; border: 1px dashed #9986ac; border-radius: 20px; text-align: center; }
+@media (prefers-reduced-motion: reduce) { .album-card { transition: none; } .album-card-link:hover .album-card, .album-card-link:focus-visible .album-card { transform: none; } }

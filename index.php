@@ -40,29 +40,32 @@ $albums = $stmt->fetchAll(PDO::FETCH_ASSOC);
       <p class="section-intro">Découvrez les albums de notre collection musicale.</p>
     </div>
 
-    <!-- Affichage dynamique des albums de la BDD -->
-    <div id="projectGrid" class="project-grid">
-      <?php if (!empty($albums)): ?>
-        <?php foreach ($albums as $album): ?>
-          <?php 
-            // Détermination du créateur (Groupe ou Artiste solo)
-            if (!empty($album['nomGp'])) {
-                $createur = h($album['nomGp']) . " (Groupe)";
-            } else {
-                $createur = h($album['prenomArt'] . ' ' . $album['nomArt']) . " (Artiste)";
-            }
-          ?>
-          <a class="album-card-link" href="<?= htmlspecialchars(BASE_URL . '/album.php?id=' . rawurlencode((string) $album['idAlb']), ENT_QUOTES, 'UTF-8') ?>">
+    <?php if ($search !== ''): ?>
+      <p class="catalogue-results"><?= count($albums) ?> résultat<?= count($albums) > 1 ? 's' : '' ?> pour « <?= h($search) ?> » · <a href="<?= h(BASE_URL.'/index.php') ?>">Tout afficher</a></p>
+    <?php endif; ?>
+    <div id="projectGrid" class="project-grid album-grid">
+      <?php foreach ($albums as $album):
+          $createur = !empty($album['nomGp']) ? $album['nomGp'] : trim(($album['prenomArt'] ?? '').' '.($album['nomArt'] ?? ''));
+          $year = !empty($album['dtSortieA']) ? substr($album['dtSortieA'], 0, 4) : '';
+      ?>
+        <a class="album-card-link" href="<?= h(BASE_URL.'/album.php?id='.(int)$album['idAlb']) ?>">
           <article class="album-card">
-            <h3><?= h($album['nomA']) ?></h3>
-            <p><strong>Créateur :</strong> <?= $createur ?></p>
-            <p><strong>Sortie :</strong> <?= h($album['dtSortieA']) ?></p>
-            <p><strong>Label :</strong> <?= h($album['nomLabelA']) ?></p>
+            <div class="album-cover album-cover--<?= (int)$album['idAlb'] % 4 ?>" aria-hidden="true">
+              <span class="album-cover-category"><?= !empty($album['nomGp']) ? 'Groupe' : 'Artiste' ?></span>
+              <span class="album-vinyl"></span>
+              <span class="album-cover-name"><?= h($album['nomA']) ?></span>
+              <span class="album-cover-action">Découvrir l’album <span>↗</span></span>
+            </div>
+            <div class="album-card-body">
+              <h3><?= h($album['nomA']) ?></h3>
+              <p class="album-creator"><?= h($createur ?: 'Artiste non renseigné') ?></p>
+              <p class="album-meta"><?= h(implode(' · ', array_filter([$year, $album['nomLabelA']]))) ?></p>
+            </div>
           </article>
-          </a>
-        <?php endforeach; ?>
-      <?php else: ?>
-        <p>Aucun album trouvé dans la médiathèque.</p>
+        </a>
+      <?php endforeach; ?>
+      <?php if (!$albums): ?>
+        <p class="catalogue-empty"><?= $search !== '' ? 'Aucun album ne correspond à votre recherche.' : 'Aucun album dans la collection pour le moment.' ?></p>
       <?php endif; ?>
     </div>
   </main>
