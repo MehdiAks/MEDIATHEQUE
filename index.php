@@ -29,7 +29,7 @@ $stmt->execute(array_fill(0, 4, '%'.$search.'%'));
 $albums = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $topLikedStatement = $bdd->query(
-  "SELECT t.idTit, t.nomTit, t.dureeTit, a.idAlb, a.nomA,
+  "SELECT t.idTit, t.nomTit, t.dureeTit, t.audioTit, a.idAlb, a.nomA,
       COALESCE(g.nomGp, TRIM(CONCAT(COALESCE(art.prenomArt, ''), ' ', COALESCE(art.nomArt, '')))) AS createur,
       (SELECT COUNT(*) FROM LIKES l WHERE l.idAlb = a.idAlb) AS likeCount
      FROM TITRE t
@@ -42,7 +42,7 @@ $topLikedStatement = $bdd->query(
 $topLikedTracks = $topLikedStatement->fetchAll(PDO::FETCH_ASSOC);
 
 $latestReleaseStatement = $bdd->query(
-  "SELECT t.idTit, t.nomTit, t.dureeTit, a.idAlb, a.nomA, a.dtSortieA,
+  "SELECT t.idTit, t.nomTit, t.dureeTit, t.audioTit, a.idAlb, a.nomA, a.dtSortieA,
       COALESCE(g.nomGp, TRIM(CONCAT(COALESCE(art.prenomArt, ''), ' ', COALESCE(art.nomArt, '')))) AS createur
      FROM TITRE t
      INNER JOIN ALBUM a ON a.idAlb = t.idAlb
@@ -74,12 +74,14 @@ $formatDuration = static function ($duration): string {
         <?php if ($topLikedTracks): ?>
           <ol class="music-ranking">
             <?php foreach ($topLikedTracks as $track): ?>
+              <?php $trackAudio = audio_url($track['audioTit']); ?>
               <li>
-                <a class="music-ranking-link" href="<?= h(BASE_URL.'/album.php?id='.(int)$track['idAlb']) ?>">
+                <a class="music-ranking-link" href="<?= h(BASE_URL.'/album.php?id='.(int)$track['idAlb']) ?>" <?= $trackAudio ? 'data-home-track="true"' : '' ?>>
                   <span class="music-ranking-number"><?= $loop = ($loop ?? 0) + 1 ?></span>
                   <span class="music-ranking-main"><strong><?= h($track['nomTit']) ?></strong><small><?= h($track['createur'] ?: 'Artiste non renseigné') ?></small></span>
                   <span class="music-ranking-album"><?= h($track['nomA']) ?></span>
                   <span class="music-ranking-duration"><?= h($formatDuration($track['dureeTit'])) ?></span>
+                  <?php if ($trackAudio): ?><audio class="track-audio home-track-audio" preload="metadata" src="<?= h($trackAudio) ?>" data-track-title="<?= h($track['nomTit']) ?>" data-album-title="<?= h($track['nomA']) ?>" data-track-artist="<?= h($track['createur'] ?: 'Artiste non renseigné') ?>" data-player-like-url="<?= h(BASE_URL.'/album.php?id='.(int)$track['idAlb']) ?>" data-player-auth="false" data-player-liked="false">Votre navigateur ne prend pas en charge le lecteur audio.</audio><?php endif; ?>
                 </a>
               </li>
             <?php endforeach; unset($loop); ?>
@@ -94,12 +96,14 @@ $formatDuration = static function ($duration): string {
         <?php if ($latestReleaseTracks): ?>
           <ol class="music-ranking">
             <?php foreach ($latestReleaseTracks as $track): ?>
+              <?php $trackAudio = audio_url($track['audioTit']); ?>
               <li>
-                <a class="music-ranking-link" href="<?= h(BASE_URL.'/album.php?id='.(int)$track['idAlb']) ?>">
+                <a class="music-ranking-link" href="<?= h(BASE_URL.'/album.php?id='.(int)$track['idAlb']) ?>" <?= $trackAudio ? 'data-home-track="true"' : '' ?>>
                   <span class="music-ranking-number"><?= $latestLoop = ($latestLoop ?? 0) + 1 ?></span>
                   <span class="music-ranking-main"><strong><?= h($track['nomTit']) ?></strong><small><?= h($track['createur'] ?: 'Artiste non renseigné') ?></small></span>
                   <span class="music-ranking-album"><?= h($track['nomA']) ?></span>
                   <span class="music-ranking-duration"><?= h($formatDuration($track['dureeTit'])) ?></span>
+                  <?php if ($trackAudio): ?><audio class="track-audio home-track-audio" preload="metadata" src="<?= h($trackAudio) ?>" data-track-title="<?= h($track['nomTit']) ?>" data-album-title="<?= h($track['nomA']) ?>" data-track-artist="<?= h($track['createur'] ?: 'Artiste non renseigné') ?>" data-player-like-url="<?= h(BASE_URL.'/album.php?id='.(int)$track['idAlb']) ?>" data-player-auth="false" data-player-liked="false">Votre navigateur ne prend pas en charge le lecteur audio.</audio><?php endif; ?>
                 </a>
               </li>
             <?php endforeach; unset($latestLoop); ?>

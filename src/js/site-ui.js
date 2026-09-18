@@ -63,6 +63,137 @@
       toggle.setAttribute('aria-pressed', String(!isVisible));
     });
   });
+  const audioPlayer = document.getElementById('siteAudioPlayer');
+  const cursorDisk = document.getElementById('cursorDisk');
+  if (cursorDisk && window.matchMedia('(pointer: fine)').matches) {
+    let cursorFrame = null;
+    document.addEventListener('mousemove', event => {
+      if (cursorFrame) cancelAnimationFrame(cursorFrame);
+      cursorFrame = requestAnimationFrame(() => {
+        cursorDisk.style.left = `${event.clientX}px`;
+        cursorDisk.style.top = `${event.clientY}px`;
+        cursorDisk.classList.add('is-visible');
+      });
+    });
+  }
+  const audioTracks = [...document.querySelectorAll('.track-audio')];
+  if (audioPlayer && audioTracks.length) {
+    const playerTitle = audioPlayer.querySelector('[data-player-title]');
+    const playerArtist = audioPlayer.querySelector('[data-player-artist]');
+    const playerPlay = audioPlayer.querySelector('[data-player-play]');
+    const playerLike = audioPlayer.querySelector('[data-player-like]');
+    const playerProgress = audioPlayer.querySelector('[data-player-progress]');
+    const playerCurrent = audioPlayer.querySelector('[data-player-current]');
+    const playerDuration = audioPlayer.querySelector('[data-player-duration]');
+    const playerDisc = audioPlayer.querySelector('[data-player-disc]');
+    let activeTrack = null;
+
+    const formatTime = seconds => {
+      if (!Number.isFinite(seconds)) return '0:00';
+      const totalSeconds = Math.max(0, Math.floor(seconds));
+      return `${Math.floor(totalSeconds / 60)}:${String(totalSeconds % 60).padStart(2, '0')}`;
+    };
+    const updateLikeButton = () => {
+      const liked = activeTrack?.dataset.playerLiked === 'true';
+      playerLike.textContent = liked ? '♥' : '♡';
+      playerLike.setAttribute('aria-label', liked ? 'Retirer des favoris' : 'Ajouter aux favoris');
+      playerLike.setAttribute('title', liked ? 'Retirer des favoris' : 'Ajouter aux favoris');
+      playerLike.setAttribute('aria-pressed', String(liked));
+    };
+    const showPlayer = track => {
+      activeTrack = track;
+      playerTitle.textContent = track.dataset.trackTitle || 'Titre sans nom';
+      playerArtist.textContent = `${track.dataset.trackArtist || 'Artiste non renseigné'} · ${track.dataset.albumTitle || 'Album non renseigné'}`;
+      playerDuration.textContent = formatTime(track.duration);
+      playerProgress.value = track.duration ? (track.currentTime / track.duration) * 100 : 0;
+      playerCurrent.textContent = formatTime(track.currentTime);
+      updateLikeButton();
+      audioPlayer.hidden = false;
+      audioPlayer.classList.add('is-visible');
+    };
+    const hidePlayer = () => {
+      audioPlayer.classList.remove('is-visible');
+      audioPlayer.hidden = true;
+      playerDisc.classList.remove('is-playing');
+      activeTrack = null;
+    };
+    const playTrack = track => {
+      audioTracks.forEach(candidate => { if (candidate !== track) candidate.pause(); });
+      activeTrack = track;
+      track.play();
+    };
+
+    audioTracks.forEach(track => {
+      track.addEventListener('play', () => { showPlayer(track); playerDisc.classList.add('is-playing'); playerPlay.textContent = 'Ⅱ'; playerPlay.setAttribute('aria-label', 'Mettre en pause'); });
+      track.addEventListener('pause', () => { if (activeTrack === track) { playerDisc.classList.remove('is-playing'); playerPlay.textContent = '▶'; } });
+      track.addEventListener('loadedmetadata', () => { if (activeTrack === track) playerDuration.textContent = formatTime(track.duration); });
+      track.addEventListener('timeupdate', () => {
+        if (activeTrack !== track) return;
+        playerProgress.value = track.duration ? (track.currentTime / track.duration) * 100 : 0;
+        playerCurrent.textContent = formatTime(track.currentTime);
+      });
+      track.addEventListener('ended', () => {
+        const nextTrack = audioTracks[audioTracks.indexOf(track) + 1];
+        if (nextTrack) playTrack(nextTrack);
+        else hidePlayer();
+      });
+    });
+    document.querySelectorAll('[data-home-track]').forEach(trackLink => {
+      const homeTrack = trackLink.querySelector('.home-track-audio');
+      if (!homeTrack) return;
+      trackLink.addEventListener('click', event => {
+        event.preventDefault();
+        if (activeTrack === homeTrack && !homeTrack.paused) homeTrack.pause();
+        else playTrack(homeTrack);
+      });
+    });
+    playerPlay.addEventListener('click', () => {
+      if (!activeTrack) return;
+      if (activeTrack.paused) activeTrack.play(); else activeTrack.pause();
+    });
+    audioPlayer.querySelector('[data-player-previous]').addEventListener('click', () => {
+      if (!activeTrack) return;
+      const previousTrack = audioTracks[audioTracks.indexOf(activeTrack) - 1];
+      if (previousTrack) playTrack(previousTrack);
+    });
+    audioPlayer.querySelector('[data-player-next]').addEventListener('click', () => {
+      if (!activeTrack) return;
+      const nextTrack = audioTracks[audioTracks.indexOf(activeTrack) + 1];
+      if (nextTrack) playTrack(nextTrack);
+    });
+    audioPlayer.querySelector('[data-player-stop]').addEventListener('click', () => {
+      if (!activeTrack) return;
+      activeTrack.pause();
+      activeTrack.currentTime = 0;
+      playerDisc.classList.remove('is-playing');
+      hidePlayer();
+    });
+    playerProgress.addEventListener('input', () => {
+      if (activeTrack?.duration) activeTrack.currentTime = (Number(playerProgress.value) / 100) * activeTrack.duration;
+    });
+    playerLike.addEventListener('click', async () => {
+      if (!activeTrack) return;
+      if (activeTrack.dataset.playerAuth !== 'true') {
+        window.location.href = `${activeTrack.dataset.playerLikeUrl.replace('/album.php?', '/views/backend/security/login.php?')}`;
+        return;
+      }
+      const wasLiked = activeTrack.dataset.playerLiked === 'true';
+      const formData = new FormData();
+      formData.append('csrf_token', activeTrack.dataset.playerCsrf);
+      formData.append('action', wasLiked ? 'unlike' : 'like');
+      playerLike.disabled = true;
+      try {
+        const response = await fetch(activeTrack.dataset.playerLikeUrl, { method: 'POST', body: formData, credentials: 'same-origin' });
+        if (!response.ok) throw new Error('Like impossible');
+        activeTrack.dataset.playerLiked = String(!wasLiked);
+        updateLikeButton();
+      } catch (error) {
+        playerLike.title = 'Impossible de modifier le favori';
+      } finally {
+        playerLike.disabled = false;
+      }
+    });
+  }
   const form = document.querySelector('[data-auth]');
   if (!form) return;
   const email = form.elements.eMailUser;

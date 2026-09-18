@@ -1,4 +1,25 @@
 <?php require_once ROOT.'/includes/libs/cookie-consent.php'; ?>
+<img class="cursor-disk" id="cursorDisk" src="<?= h(BASE_URL.'/src/images/disque.png') ?>" alt="" aria-hidden="true">
+<aside class="audio-player" id="siteAudioPlayer" aria-label="Lecteur audio" hidden>
+  <img class="audio-player-disc" data-player-disc src="<?= h(BASE_URL.'/src/images/disque.png') ?>" alt="" aria-hidden="true">
+  <div class="audio-player-info">
+    <span class="audio-player-label">Lecture en cours</span>
+    <strong data-player-title></strong>
+    <small data-player-artist></small>
+  </div>
+  <div class="audio-player-controls">
+    <button type="button" class="audio-player-button" data-player-previous aria-label="Musique précédente" title="Musique précédente">|◀</button>
+    <button type="button" class="audio-player-button audio-player-play" data-player-play aria-label="Lire la musique" title="Lire la musique">▶</button>
+    <button type="button" class="audio-player-button" data-player-next aria-label="Musique suivante" title="Musique suivante">▶|</button>
+    <button type="button" class="audio-player-button" data-player-stop aria-label="Arrêter la lecture" title="Arrêter la lecture">■</button>
+    <button type="button" class="audio-player-button audio-player-like" data-player-like aria-label="Ajouter aux favoris" title="Ajouter aux favoris">♡</button>
+  </div>
+  <div class="audio-player-progress">
+    <span data-player-current>0:00</span>
+    <input type="range" data-player-progress min="0" max="100" value="0" step="0.1" aria-label="Progression de la musique">
+    <span data-player-duration>0:00</span>
+  </div>
+</aside>
 <footer class="site-footer">
   <span>MÉDIATHÈQUE · MMI BORDEAUX</span>
   <nav aria-label="Informations légales">
