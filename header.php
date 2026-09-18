@@ -50,6 +50,17 @@ $noindex = str_contains($pagePath,'/backend/') || isset($_GET['q']) || http_resp
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body data-image-fallback="<?= $assetUrl('src/images/Michel.png') ?>">
+<?php if (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'index.php'): ?>
+<div class="site-intro-layer is-pending" id="siteIntroLayer" role="dialog" aria-modal="true" aria-labelledby="site-intro-title">
+  <div class="site-intro-pattern" aria-hidden="true"></div>
+  <div class="site-intro-content">
+    <img class="site-intro-michel" src="<?= $assetUrl('src/images/Michel.png') ?>" alt="Michel, mascotte de la médiathèque">
+    <p class="site-intro-kicker">Médiathèque MMI Bordeaux</p>
+    <h1 id="site-intro-title">Les productions MMI</h1>
+    <button class="site-intro-button" id="siteIntroButton" type="button">Découvrir les productions MMI</button>
+  </div>
+</div>
+<?php endif; ?>
 <?php if (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'album.php'): ?><a class="skip-content" href="#contenu">Aller au contenu</a><?php endif; ?>
 <nav class="navbar navbar-expand-lg site-header">
   <div class="container-fluid">

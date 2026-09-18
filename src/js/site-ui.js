@@ -1,4 +1,36 @@
 (() => {
+  const introLayer = document.getElementById('siteIntroLayer');
+  const introButton = document.getElementById('siteIntroButton');
+  if (introLayer && introButton) {
+    const introStorageKey = 'mmi-intro-seen';
+    const cameFromThisSite = (() => {
+      if (!document.referrer) return false;
+      try {
+        return new URL(document.referrer).origin === window.location.origin;
+      } catch {
+        return false;
+      }
+    })();
+    let introWasSeen = false;
+    try {
+      introWasSeen = sessionStorage.getItem(introStorageKey) === 'true';
+      if (!introWasSeen && !cameFromThisSite) sessionStorage.setItem(introStorageKey, 'true');
+    } catch {
+      introWasSeen = cameFromThisSite;
+    }
+
+    if (introWasSeen || cameFromThisSite) {
+      introLayer.remove();
+    } else {
+      document.body.classList.add('intro-layer-open');
+      introLayer.classList.remove('is-pending');
+      introButton.addEventListener('click', () => {
+        introLayer.classList.add('is-closing');
+        document.body.classList.remove('intro-layer-open');
+        introLayer.addEventListener('transitionend', () => introLayer.remove(), { once: true });
+      });
+    }
+  }
   const fallback = document.body.dataset.imageFallback;
   function replaceImage(img) {
     if (!fallback || img.dataset.fallbackApplied) return;
@@ -21,6 +53,16 @@
   document.addEventListener('play', event => {
     if (event.target instanceof HTMLAudioElement) document.querySelectorAll('audio').forEach(player => { if (player !== event.target) player.pause(); });
   }, true);
+  document.querySelectorAll('[data-password-toggle]').forEach(toggle => {
+    const passwordInput = document.getElementById(toggle.dataset.passwordToggle);
+    if (!passwordInput) return;
+    toggle.addEventListener('click', () => {
+      const isVisible = passwordInput.type === 'text';
+      passwordInput.type = isVisible ? 'password' : 'text';
+      toggle.textContent = isVisible ? 'Afficher' : 'Masquer';
+      toggle.setAttribute('aria-pressed', String(!isVisible));
+    });
+  });
   const form = document.querySelector('[data-auth]');
   if (!form) return;
   const email = form.elements.eMailUser;

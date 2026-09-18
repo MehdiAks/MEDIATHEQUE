@@ -27,6 +27,37 @@ $stmt = $bdd->prepare($requete);
 $search = is_string($_GET['q'] ?? null) ? trim($_GET['q']) : '';
 $stmt->execute(array_fill(0, 4, '%'.$search.'%'));
 $albums = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$topLikedStatement = $bdd->query(
+  "SELECT t.idTit, t.nomTit, t.dureeTit, a.idAlb, a.nomA,
+      COALESCE(g.nomGp, TRIM(CONCAT(COALESCE(art.prenomArt, ''), ' ', COALESCE(art.nomArt, '')))) AS createur,
+      (SELECT COUNT(*) FROM LIKES l WHERE l.idAlb = a.idAlb) AS likeCount
+     FROM TITRE t
+     INNER JOIN ALBUM a ON a.idAlb = t.idAlb
+     LEFT JOIN GROUPE g ON g.idGp = a.idGp
+     LEFT JOIN ARTISTE art ON art.idArt = a.idArt
+    ORDER BY likeCount DESC, t.nomTit ASC, t.idTit ASC
+    LIMIT 5"
+);
+$topLikedTracks = $topLikedStatement->fetchAll(PDO::FETCH_ASSOC);
+
+$latestReleaseStatement = $bdd->query(
+  "SELECT t.idTit, t.nomTit, t.dureeTit, a.idAlb, a.nomA, a.dtSortieA,
+      COALESCE(g.nomGp, TRIM(CONCAT(COALESCE(art.prenomArt, ''), ' ', COALESCE(art.nomArt, '')))) AS createur
+     FROM TITRE t
+     INNER JOIN ALBUM a ON a.idAlb = t.idAlb
+     LEFT JOIN GROUPE g ON g.idGp = a.idGp
+     LEFT JOIN ARTISTE art ON art.idArt = a.idArt
+    WHERE a.dtSortieA IS NOT NULL
+    ORDER BY a.dtSortieA DESC, t.idTit DESC
+    LIMIT 5"
+);
+$latestReleaseTracks = $latestReleaseStatement->fetchAll(PDO::FETCH_ASSOC);
+
+$formatDuration = static function ($duration): string {
+  $seconds = max(0, (int) round((float) $duration));
+  return sprintf('%d:%02d', intdiv($seconds, 60), $seconds % 60);
+};
 ?>
 
   <main id="projets" class="projects-section">
@@ -34,6 +65,48 @@ $albums = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="section-orb section-orb-two" aria-hidden="true"></div>
 
     <section class="catalogue-intro" aria-labelledby="catalogue-title"><p class="eyebrow dark">Votre prochaine découverte musicale</p><h1 id="catalogue-title">La musique se découvre ici.</h1><p>Parcourez les albums, rencontrez les artistes et retrouvez vos coups de cœur.</p><a class="btn btn-primary" href="#projectGrid">Découvrir les albums</a></section>
+    <section class="music-highlights" aria-label="Sélections musicales">
+      <div class="music-highlight">
+        <div class="music-highlight-heading">
+          <p class="eyebrow dark">Les favoris de la communauté</p>
+          <h2>Top titres likés</h2>
+        </div>
+        <?php if ($topLikedTracks): ?>
+          <ol class="music-ranking">
+            <?php foreach ($topLikedTracks as $track): ?>
+              <li>
+                <a class="music-ranking-link" href="<?= h(BASE_URL.'/album.php?id='.(int)$track['idAlb']) ?>">
+                  <span class="music-ranking-number"><?= $loop = ($loop ?? 0) + 1 ?></span>
+                  <span class="music-ranking-main"><strong><?= h($track['nomTit']) ?></strong><small><?= h($track['createur'] ?: 'Artiste non renseigné') ?></small></span>
+                  <span class="music-ranking-album"><?= h($track['nomA']) ?></span>
+                  <span class="music-ranking-duration"><?= h($formatDuration($track['dureeTit'])) ?></span>
+                </a>
+              </li>
+            <?php endforeach; unset($loop); ?>
+          </ol>
+        <?php else: ?><p class="music-highlight-empty">Aucun titre favori pour le moment.</p><?php endif; ?>
+      </div>
+      <div class="music-highlight">
+        <div class="music-highlight-heading">
+          <p class="eyebrow dark">Les sorties du calendrier</p>
+          <h2>Dernières sorties</h2>
+        </div>
+        <?php if ($latestReleaseTracks): ?>
+          <ol class="music-ranking">
+            <?php foreach ($latestReleaseTracks as $track): ?>
+              <li>
+                <a class="music-ranking-link" href="<?= h(BASE_URL.'/album.php?id='.(int)$track['idAlb']) ?>">
+                  <span class="music-ranking-number"><?= $latestLoop = ($latestLoop ?? 0) + 1 ?></span>
+                  <span class="music-ranking-main"><strong><?= h($track['nomTit']) ?></strong><small><?= h($track['createur'] ?: 'Artiste non renseigné') ?></small></span>
+                  <span class="music-ranking-album"><?= h($track['nomA']) ?></span>
+                  <span class="music-ranking-duration"><?= h($formatDuration($track['dureeTit'])) ?></span>
+                </a>
+              </li>
+            <?php endforeach; unset($latestLoop); ?>
+          </ol>
+        <?php else: ?><p class="music-highlight-empty">Aucune sortie datée pour le moment.</p><?php endif; ?>
+      </div>
+    </section>
     <div class="section-heading">
       <div>
         <p class="eyebrow dark">Médiathèque</p>
