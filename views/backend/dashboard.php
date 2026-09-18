@@ -83,18 +83,6 @@ include '../../header.php';
                             </td>
                             <td></td>
                         </tr>
-<!--                         <tr>
-                            <td>Statuts</td>
-                            <td>
-                                <a href="/views/backend/statutsCC/list.php" class="btn btn-primary disabled">List</a>
-                                <a href="/views/backend/statutsCC/create.php" class="btn btn-success disabled">Create</a>
-                                <a href="/views/backend/statutsCC/edit.php" class="btn btn-warning disabled">Edit</a>
-                                <a href="/views/backend/statutsCC/delete.php" class="btn btn-danger disabled">Delete</a>
-                            </td>
-                            <td>
-                                <p>CC S2 : Exemple CRUD fourni</p>
-                            </td>
-                        </tr> -->
                     </tbody>
                 </table>
             </div>
