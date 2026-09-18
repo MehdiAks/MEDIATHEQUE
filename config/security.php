@@ -42,17 +42,7 @@ function verify_csrf_token(?string $token = null): bool
 
 function is_logged(): bool
 {
-    $userId = $_SESSION['USER_ID'] ?? $_SESSION['id_user'] ?? null;
-
-    if ($userId === null || $userId === '') {
-        return false;
-    }
-
-    if (!defined('ID_USER')) {
-        define('ID_USER', $userId);
-    }
-
-    return true;
+    return current_user() !== null;
 }
 
 function check_auth(): void

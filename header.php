@@ -40,11 +40,18 @@ $assetUrl = static function (string $path): string {
     </div>
     <!-- right align -->
     <div class="d-flex">
-      <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Rechercher sur le site…" aria-label="Search">
+      <form class="d-flex" role="search" method="get" action="<?= $assetUrl('index.php') ?>">
+          <input class="form-control me-2" type="search" name="q" placeholder="Rechercher sur le site…" aria-label="Search">
       </form>
-      <a class="btn btn-primary m-1" href="<?= $assetUrl('views/backend/security/login.php') ?>" role="button">Login</a>
-      <a class="btn btn-dark m-1" href="<?= $assetUrl('views/backend/security/signup.php') ?>" role="button">Sign up</a>
+      <?php if (is_logged()): ?>
+      <form method="post" action="<?= $assetUrl('api/security/disconnect.php') ?>">
+        <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
+        <button class="btn btn-dark m-1" type="submit">Déconnexion</button>
+      </form>
+      <?php else: ?>
+      <a class="btn btn-primary m-1" href="<?= $assetUrl('views/backend/security/login.php') ?>">Connexion</a>
+      <a class="btn btn-dark m-1" href="<?= $assetUrl('views/backend/security/signup.php') ?>">Inscription</a>
+      <?php endif; ?>
     </div>
   </div>
 </nav>

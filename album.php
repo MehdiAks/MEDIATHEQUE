@@ -31,8 +31,9 @@ if (!$album) {
     exit('Album introuvable.');
 }
 
-$userEmail = $_SESSION['eMailUser'] ?? $_SESSION['USER_ID'] ?? null;
-$isLoggedIn = is_string($userEmail) && $userEmail !== '';
+$user = current_user();
+$userEmail = $user['eMailUser'] ?? null;
+$isLoggedIn = $user !== null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $submittedToken = $_POST['csrf_token'] ?? '';
@@ -46,13 +47,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // INSERT IGNORE rend le like idempotent lorsque la paire de la clé
     // primaire composite (eMailUser, idAlb) existe déjà.
     $likeStatement = $bdd->prepare(
-        'INSERT IGNORE INTO LIKES (eMailUser, idAlb) VALUES (:eMailUser, :idAlb)'
+        ($_POST['action'] ?? '') === 'unlike'
+        ? 'DELETE FROM LIKES WHERE eMailUser = :eMailUser AND idAlb = :idAlb'
+        : 'INSERT IGNORE INTO LIKES (eMailUser, idAlb) VALUES (:eMailUser, :idAlb)'
     );
     $likeStatement->execute(['eMailUser' => $userEmail, 'idAlb' => $albumId]);
 
     header('Location: ' . BASE_URL . '/album.php?id=' . rawurlencode((string) $albumId), true, 303);
     exit;
 }
+
+$hasLiked = $isLoggedIn && (bool)query_rows('SELECT 1 FROM LIKES WHERE eMailUser = ? AND idAlb = ?', [$userEmail,$albumId]);
 
 $members = [];
 if (!empty($album['nomGp'])) {
@@ -128,7 +133,8 @@ require __DIR__ . '/header.php';
     <?php if ($isLoggedIn): ?>
       <form method="post" action="<?= $escape(BASE_URL . '/album.php?id=' . $albumId) ?>">
         <input type="hidden" name="csrf_token" value="<?= $escape($_SESSION['csrf_token']) ?>">
-        <button class="btn btn-primary" type="submit">J'aime cet album</button>
+        <input type="hidden" name="action" value="<?= $hasLiked ? 'unlike' : 'like' ?>">
+        <button class="btn btn-primary" type="submit"><?= $hasLiked ? 'Retirer des favoris' : "J’aime cet album" ?></button>
       </form>
     <?php endif; ?>
   </section>

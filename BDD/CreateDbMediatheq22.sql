@@ -14,7 +14,7 @@ DEFAULT COLLATE utf8_general_ci ; --
 -- SHOW VARIABLES;        -- Voir les paramètres de la BD
 
 -- Flush / Init all privileges
-FLUSH PRIVILEGES;
+-- Aucun privilège global requis pour importer le schéma.
 
 -- Now we create the Database
 

@@ -1,5 +1,3 @@
 <?php
-include '../../../header.php';
-
-echo("Form signup");
-
+$action='signup';
+require __DIR__.'/form.php';

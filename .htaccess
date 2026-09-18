@@ -1,0 +1,6 @@
+Options -Indexes
+<FilesMatch "^(\.env.*|composer\.(json|lock)|.*\.sql|README.*|.*\.log)$">
+    Require all denied
+</FilesMatch>
+RewriteEngine On
+RewriteRule ^(?:BDD|tests|scripts|functions|config|includes)(?:/|$) - [F,L]

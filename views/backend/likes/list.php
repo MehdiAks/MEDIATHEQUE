@@ -1,3 +1,4 @@
 <?php
-include '../../../header.php'; // contains the header and call to config.php
-
+$entity = 'likes';
+$page = 'list';
+require dirname(__DIR__).'/crud.php';

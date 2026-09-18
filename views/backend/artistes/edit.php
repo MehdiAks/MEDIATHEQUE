@@ -1,3 +1,4 @@
 <?php
-include '../../../header.php';
-
+$entity = 'artistes';
+$page = 'edit';
+require dirname(__DIR__).'/crud.php';

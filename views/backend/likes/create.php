@@ -1,3 +1,4 @@
 <?php
-include '../../../header.php';
-
+$entity = 'likes';
+$page = 'create';
+require dirname(__DIR__).'/crud.php';

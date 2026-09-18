@@ -1,4 +1,3 @@
 <?php
-include '../../../header.php';
-
-echo ("Edit Statut à faire");
+require_once dirname(__DIR__,3).'/config.php';
+redirect_to('/views/backend/dashboard.php');

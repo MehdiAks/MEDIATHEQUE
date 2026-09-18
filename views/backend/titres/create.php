@@ -1,3 +1,4 @@
 <?php
-include '../../../header.php';
-
+$entity = 'titres';
+$page = 'create';
+require dirname(__DIR__).'/crud.php';
