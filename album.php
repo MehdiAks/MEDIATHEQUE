@@ -134,7 +134,7 @@ require __DIR__ . '/header.php';
         <tbody><?php foreach ($tracks as $i=>$track): ?><tr>
           <td><?= $i+1 ?></td><th scope="row"><?= h($track['nomTit']) ?>
           <?php if (audio_url($track['audioTit'])): ?>
-          <button class="track-play-button" type="button" data-track-trigger="track-<?= (int)$track['idTit'] ?>" aria-label="Lire <?= h($track['nomTit']) ?>" title="Lire <?= h($track['nomTit']) ?>"><img src="<?= h(BASE_URL.'/src/images/playmusic.png') ?>" alt=""></button>
+          <button class="track-play-button" type="button" data-track-trigger="track-<?= (int)$track['idTit'] ?>" aria-label="Lire <?= h($track['nomTit']) ?>" title="Lire <?= h($track['nomTit']) ?>"><img src="<?= h(BASE_URL.'/src/images/playmusic.png') ?>" alt=""><span class="track-pause-icon" aria-hidden="true" hidden>Ⅱ</span></button>
           <audio id="track-<?= (int)$track['idTit'] ?>" class="track-audio" controls preload="none" aria-label="Écouter <?= h($track['nomTit']) ?>" src="<?= h(audio_url($track['audioTit'])) ?>" data-track-title="<?= h($track['nomTit']) ?>" data-album-title="<?= h($album['nomA']) ?>" data-track-artist="<?= h($album['nomGp'] ?: trim(($album['prenomArt'] ?? '').' '.($album['nomArt'] ?? ''))) ?>" data-player-like-url="<?= h(BASE_URL.'/album.php?id='.$albumId) ?>" data-player-csrf="<?= h(generate_csrf_token()) ?>" data-player-auth="<?= $isLoggedIn ? 'true' : 'false' ?>" data-player-liked="<?= $hasLiked ? 'true' : 'false' ?>">Votre navigateur ne prend pas en charge le lecteur audio.</audio>
           <a class="audio-download" href="<?= h(audio_url($track['audioTit'])) ?>" download>Télécharger <?= h($track['nomTit']) ?></a>
           <?php else: ?><span class="track-unavailable">Audio non disponible</span><?php endif; ?>

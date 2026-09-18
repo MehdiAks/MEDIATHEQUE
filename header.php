@@ -44,10 +44,6 @@ $noindex = str_contains($pagePath,'/backend/') || isset($_GET['q']) || http_resp
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
     <link rel="stylesheet" href="<?= $assetUrl('src/css/style.css') ?>" />
     <link rel="shortcut icon" type="image/png" href="<?= $assetUrl('src/images/Michel.png') ?>" />
-    <!-- Google Fonts & styles spécifiques -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body data-image-fallback="<?= $assetUrl('src/images/Michel.png') ?>" data-base-url="<?= h(BASE_URL) ?>">
 <?php if (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'index.php'): ?>

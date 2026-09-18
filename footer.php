@@ -9,7 +9,7 @@
   </div>
   <div class="audio-player-controls">
     <button type="button" class="audio-player-button" data-player-previous aria-label="Musique précédente" title="Musique précédente"><img src="<?= h(BASE_URL.'/src/images/previewmusic.png') ?>" alt=""></button>
-    <button type="button" class="audio-player-button audio-player-play" data-player-play aria-label="Lire la musique" title="Lire la musique"><img data-player-play-icon src="<?= h(BASE_URL.'/src/images/playmusic.png') ?>" alt=""></button>
+    <button type="button" class="audio-player-button audio-player-play" data-player-play aria-label="Lire la musique" title="Lire la musique"><img data-player-play-icon src="<?= h(BASE_URL.'/src/images/playmusic.png') ?>" alt=""><span class="audio-player-pause-icon" data-player-pause-icon aria-hidden="true" hidden>Ⅱ</span></button>
     <button type="button" class="audio-player-button" data-player-next aria-label="Musique suivante" title="Musique suivante"><img src="<?= h(BASE_URL.'/src/images/nextmusic.png') ?>" alt=""></button>
     <button type="button" class="audio-player-button" data-player-stop aria-label="Arrêter la lecture" title="Arrêter la lecture"><img src="<?= h(BASE_URL.'/src/images/stopmusic.png') ?>" alt=""></button>
     <button type="button" class="audio-player-button audio-player-like" data-player-like aria-label="Ajouter aux favoris" title="Ajouter aux favoris"><img src="<?= h(BASE_URL.'/src/images/star.png') ?>" alt=""></button>

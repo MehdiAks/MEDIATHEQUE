@@ -1,6 +1,11 @@
 /* =========================================================
    SEMAINE D'INTÉGRATION MMI 2026   v2026-09-12 - actualisation du rendu hébergé   ========================================================== */
 
+@font-face { font-family: "Coolvetica"; src: url("../fonts/coolvetica/Coolvetica Rg.otf") format("opentype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Coolvetica"; src: url("../fonts/coolvetica/Coolvetica Rg It.otf") format("opentype"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: "Coolvetica Condensed"; src: url("../fonts/coolvetica/Coolvetica Rg Cond.otf") format("opentype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Coolvetica Heavy"; src: url("../fonts/coolvetica/Coolvetica Hv Comp.otf") format("opentype"); font-weight: 800; font-style: normal; font-display: swap; }
+
 :root {
   --purple: #a868ff;
   --purple-deep: #30105c;
@@ -26,7 +31,7 @@ body {
   margin: 0;
   background: var(--grey);
   color: var(--black);
-  font-family: "Inter", Arial, sans-serif;
+  font-family: "Coolvetica", Arial, sans-serif;
   overflow-x: hidden;
   min-height: 100vh;
 }
@@ -40,7 +45,7 @@ body {
 .site-intro-content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 16px; width: min(520px, calc(100% - 40px)); margin: 0 auto; padding: clamp(24px, 6vh, 64px) 24px 24px; text-align: center; animation: introContentIn .8s cubic-bezier(.16,1,.3,1) both; }
 .site-intro-michel { width: min(360px, 72vw); height: min(360px, 38vh); object-fit: contain; object-position: center; display: block; }
 .site-intro-kicker { margin: 20px 0 0; color: #6f42a5; font-size: .78rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
-.site-intro-content h1 { margin: 0; color: #30105c; font-family: "Archivo Black", Impact, sans-serif; font-size: clamp(2.2rem, 6vw, 4.8rem); line-height: .96; letter-spacing: -.04em; text-shadow: none; transform: none; animation: none; }
+.site-intro-content h1 { margin: 0; color: #30105c; font-family: "Coolvetica Heavy", "Coolvetica", sans-serif; font-size: clamp(2.2rem, 6vw, 4.8rem); line-height: .96; letter-spacing: 0; text-shadow: none; transform: none; animation: none; }
 .site-intro-button { position: relative; z-index: 2; display: inline-flex; align-items: center; justify-content: center; margin-top: 12px; padding: 14px 22px; border: 2px solid #30105c; border-radius: 999px; background: #30105c; color: #fff; cursor: pointer; font: inherit; font-weight: 800; transition: transform .2s ease, background-color .2s ease, color .2s ease; }
 .site-intro-button:hover, .site-intro-button:focus-visible { background: #f5dc72; color: #30105c; transform: translateY(-3px); }
 @keyframes introContentIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
@@ -173,10 +178,10 @@ body {
 h1 {
   max-width: 1000px;
   margin: 0;
-  font-family: "Archivo Black", Impact, sans-serif;
-  font-size: clamp(3rem, 8vw, 8.5rem);
-  line-height: .9;
-  letter-spacing: -.055em;
+  font-family: "Coolvetica Heavy", "Coolvetica", sans-serif;
+  font-size: clamp(3.2rem, 8vw, 8.5rem);
+  line-height: 1;
+  letter-spacing: .018em;
   text-wrap: balance;
   text-shadow: 0 10px 30px rgba(0,0,0,.18);
   transform: perspective(1000px) rotateX(10deg);
@@ -269,15 +274,15 @@ h1 span {
 .story-intro h2 {
   margin: 0 0 24px;
   color: var(--white);
-  font-family: "Archivo Black", Impact, sans-serif;
+  font-family: "Coolvetica Heavy", "Coolvetica", sans-serif;
   font-size: clamp(2.1rem, 4vw, 3.8rem);
   line-height: 1.02;
-  letter-spacing: -.05em;
+  letter-spacing: .018em;
 }
 
 .story-copy {
   color: rgba(247,244,255,.88);
-  font-family: "Inter", Arial, sans-serif;
+  font-family: "Coolvetica", Arial, sans-serif;
   font-size: 1rem;
   line-height: 1.75;
 }
@@ -285,17 +290,17 @@ h1 span {
 .story-copy h3 {
   margin: 26px 0 12px;
   color: var(--yellow);
-  font-family: "Inter", Arial, sans-serif;
+  font-family: "Coolvetica", Arial, sans-serif;
   font-size: clamp(1.2rem, 1.8vw, 1.7rem);
   line-height: 1.2;
-  letter-spacing: -.02em;
+  letter-spacing: .01em;
 }
 
 .story-copy p,
 .story-copy li,
 .story-copy strong,
 .story-copy ul {
-  font-family: "Inter", Arial, sans-serif;
+  font-family: "Coolvetica", Arial, sans-serif;
 }
 
 .story-copy p {
@@ -331,10 +336,10 @@ h1 span {
 .section-heading h2 {
   margin: 0;
   color: var(--white);
-  font-family: "Archivo Black", Impact, sans-serif;
+  font-family: "Coolvetica Heavy", "Coolvetica", sans-serif;
   font-size: clamp(3rem, 6vw, 6.5rem);
   line-height: .9;
-  letter-spacing: -.05em;
+  letter-spacing: .018em;
 }
 
 .section-intro {
@@ -554,10 +559,10 @@ h1 span {
 .backstage-section h2 {
   margin: 0 0 24px;
   color: var(--white);
-  font-family: "Archivo Black", Impact, sans-serif;
+  font-family: "Coolvetica Heavy", "Coolvetica", sans-serif;
   font-size: clamp(2.2rem, 5vw, 4.5rem);
   line-height: .9;
-  letter-spacing: -.05em;
+  letter-spacing: .018em;
 }
 
 .backstage-video-wrap {
@@ -834,7 +839,7 @@ footer {
 .album-cover--3 { background: #e8d58d; color: #493b13; }
 .album-cover-category { align-self: flex-start; padding: 5px 9px; border: 1px solid currentColor; border-radius: 30px; font-size: .65rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .album-vinyl { position: absolute; z-index: -1; width: 85%; aspect-ratio: 1; top: 22%; right: -24%; border-radius: 50%; background: radial-gradient(circle, #f3eadb 0 3%, #241c2b 3.5% 7%, #8e729e 7.5% 22%, #29232e 22.5% 24%, transparent 24.5%), repeating-radial-gradient(circle, #211c27 0 2px, #39313f 3px 4px); box-shadow: -12px 15px 25px #24143533; transform: rotate(-25deg); }
-.album-cover-name { max-width: 85%; margin-top: auto; padding: 40px 0 45px; font-family: 'Archivo Black', sans-serif; font-size: clamp(1.3rem, 2.2vw, 2rem); line-height: 1.05; overflow-wrap: anywhere; text-shadow: 0 1px 12px #ffffff99; }
+.album-cover-name { max-width: 85%; margin-top: auto; padding: 40px 0 45px; font-family: "Coolvetica Heavy", "Coolvetica", sans-serif; font-size: clamp(1.3rem, 2.2vw, 2rem); line-height: 1.05; overflow-wrap: anywhere; text-shadow: 0 1px 12px #ffffff99; }
 .album-cover-action { position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 18px; display: flex; justify-content: space-between; background: rgba(255,255,255,.93); font-size: .75rem; font-weight: 700; }
 .album-card-body { padding: 18px; }
 .album-card-body h3 { margin: 0 0 6px; font-size: 1.05rem; font-weight: 800; overflow-wrap: anywhere; }
@@ -865,7 +870,7 @@ footer {
 .album-no-cover { height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #530096; }
 .album-no-cover > span { font-size: 5rem; }
 .album-summary { padding: clamp(24px, 4vw, 42px); border-radius: 28px; }
-.album-summary h1 { color: #fff; font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.15; overflow-wrap: anywhere; }
+.album-summary h1 { color: #fff; font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.2; letter-spacing: .018em; overflow-wrap: anywhere; }
 .album-byline { color: rgba(247,244,255,.72); font-size: 1.15rem; overflow-wrap: anywhere; }
 .album-facts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; margin: 24px 0; }
 .album-facts dt { font-size: .85rem; color: rgba(247,244,255,.52); }
@@ -875,8 +880,10 @@ footer {
 .album-page h2 { color: #fff; font-size: 1.4rem; margin-bottom: 20px; }
 .track-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .track-table th, .track-table td { padding: 14px 8px; border-bottom: 1px solid rgba(255,255,255,.12); overflow-wrap: anywhere; }
+.track-table th:nth-child(2) { text-align: left; font-weight: 600; }
 .track-table tbody tr { transition: background-color .2s ease, transform .2s ease; }
 .track-table tbody tr:hover { background: rgba(255,255,255,.06); transform: translateX(4px); }
+.album-page .track-audio { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .track-play-button { width: 32px; height: 32px; display: inline-grid; place-items: center; margin-right: 8px; padding: 0; border: 0; background: transparent; cursor: pointer; vertical-align: middle; }
 .track-play-button img { width: 25px; height: 25px; object-fit: contain; transition: transform .2s ease; }
 .track-play-button:hover img, .track-play-button:focus-visible img { transform: scale(1.12); }
@@ -939,6 +946,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .audio-player-controls { display: flex; align-items: center; gap: 6px; }
 .audio-player-button { width: 38px; height: 38px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 0; background: transparent; color: #30105c; cursor: pointer; font: inherit; font-size: .85rem; font-weight: 800; }
 .audio-player-button img { width: 27px; height: 27px; object-fit: contain; display: block; }
+.audio-player-pause-icon { color: #30105c; font-size: 1.25rem; font-weight: 800; line-height: 1; }
 .audio-player-button:hover, .audio-player-button:focus-visible { background: transparent; color: #30105c; transform: scale(1.08); }
 .audio-player-play { background: transparent; color: #30105c; }
 .audio-player-like { color: #68727d; font-size: 1.3rem; }
@@ -958,19 +966,19 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 @media (max-width: 900px) { .admin-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (max-width: 600px) { .admin-grid { grid-template-columns: 1fr; } .site-header { padding: 12px; } .cookie-banner { margin: 16px; } }
 .catalogue-intro { position: relative; z-index: 1; max-width: var(--max-width); margin: 0 auto 56px; padding: 32px; border-radius: 24px; background: #f5dc72; color: #30105c; }
-.catalogue-intro h1 { font-size: clamp(1.8rem,5vw,3.5rem); line-height: 1.15; overflow-wrap: anywhere; }
+.catalogue-intro h1 { font-family: "Coolvetica Heavy", "Coolvetica", sans-serif; font-size: clamp(2.2rem,5vw,4rem); line-height: 1.12; letter-spacing: .025em; overflow-wrap: anywhere; }
 .catalogue-intro p { max-width: 640px; }
 .music-highlights { position: relative; z-index: 1; max-width: var(--max-width); margin: 0 auto 76px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .music-highlight { min-width: 0; padding: 0 clamp(22px, 3vw, 48px); }
 .music-highlight:first-child { padding-left: 0; }
 .music-highlight + .music-highlight { border-left: 1px solid rgba(255,255,255,.18); }
 .music-highlight:last-child { padding-right: 0; }
-.music-highlight-heading h2 { margin: 0 0 26px; color: var(--white); font-family: "Archivo Black", Impact, sans-serif; font-size: clamp(1.8rem, 3vw, 3.2rem); line-height: .98; letter-spacing: -.04em; }
+.music-highlight-heading h2 { margin: 0 0 26px; color: var(--white); font-family: "Coolvetica Heavy", "Coolvetica", sans-serif; font-size: clamp(1.8rem, 3vw, 3.2rem); line-height: .98; letter-spacing: 0; }
 .music-ranking { margin: 0; padding: 0; list-style: none; }
 .music-ranking li + li { border-top: 1px solid rgba(255,255,255,.12); }
 .music-ranking-link { min-height: 72px; display: grid; grid-template-columns: 30px minmax(0, 1.3fr) minmax(90px, .9fr) 42px; align-items: center; gap: 12px; color: var(--white); text-decoration: none; }
 .music-ranking-link:hover, .music-ranking-link:focus-visible { color: var(--yellow); }
-.music-ranking-number { color: var(--yellow); font-family: "Archivo Black", Impact, sans-serif; font-size: 1.2rem; }
+.music-ranking-number { color: var(--yellow); font-family: "Coolvetica Heavy", "Coolvetica", sans-serif; font-size: 1.2rem; }
 .music-ranking-main { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 .music-ranking-main strong, .music-ranking-album { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .music-ranking-main strong { font-size: .95rem; }
