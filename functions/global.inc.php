@@ -12,7 +12,4 @@ require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/various.php';
 // Charge les fonctions liées aux données (si elles existent).
 require_once __DIR__ . '/data.php';
-// Charge les helpers de messages flash (notifications utilisateur).
-require_once __DIR__ . '/flash.php';
-
 ?>

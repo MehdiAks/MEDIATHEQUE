@@ -21,7 +21,7 @@
     </header>
     <div id="creditsContent" class="credits-dialog-content" aria-live="polite"></div>
   </dialog>
-  <script src="group-media.js?v=2026-09-12-1"></script>
-  <script src="script.js?v=2026-09-12-1"></script>
+  <script src="<?= htmlspecialchars(BASE_URL . '/src/js/group-media.js?v=2026-09-12-1', ENT_QUOTES, 'UTF-8') ?>"></script>
+  <script src="<?= htmlspecialchars(BASE_URL . '/src/js/script.js?v=2026-09-12-1', ENT_QUOTES, 'UTF-8') ?>"></script>
 </body>
 </html>
